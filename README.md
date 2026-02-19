@@ -1,1 +1,1 @@
-# IST440-Project
+# yogitrack-prototype
