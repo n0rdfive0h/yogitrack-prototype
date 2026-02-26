@@ -31,6 +31,8 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
 
     const form = document.getElementById("instructorForm");
 
+
+    
     const instructorData = {
       instructorId: nextId,
       firstname: form.firstname.value.trim(),
