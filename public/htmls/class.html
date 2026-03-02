@@ -1,102 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>YogiTrack • Class Schedule</title>
-  <link rel="stylesheet" href="../css/style.css">
-</head>
-<body class="layout--sidebar">
-  <!-- Re-use the same sidebar -->
-  <aside class="sidebar">
-    <a class="logo-wrap" href="dashboard.html">
-      <img src="../images/Logo.png" alt="YogaTrack Logo" class="logo">
-    </a>
-    <nav class="nav">
-         <a href="instructor.html">Instructors</a>
-        <a href="#">Packages</a>
-        <a href="class.html">Class Schedule</a>
-        <a href="#">Customers</a>
-        <a href="#">Check-ins</a>
-        <a href="../index.html">Log Out</a>
-    </nav>
-  </aside>
+    <head>
+    <meta charset="UTF-8">
+    <title>YogiTrack • Class Schedule</title>
+    <link rel="stylesheet" href="../css/style.css">
+    </head>
+    <body class="layout--sidebar">
+        <!-- Re-use the same sidebar -->
+        <aside class="sidebar">
+            <a class="logo-wrap" href="dashboard.html">
+            <img src="../images/Logo.png" alt="YogaTrack Logo" class="logo">
+            </a>
+            <nav class="nav">
+                <a href="instructor.html">Instructors</a>
+                <a href="#">Packages</a>
+                <a href="class.html">Class Schedule</a>
+                <a href="#">Customers</a>
+                <a href="#">Check-ins</a>
+                <a href="../index.html">Log Out</a>
+            </nav>
+        </aside>
 
-    <!-- Class Schedule form -->
-    <main class="layout--center">
-        <form class="card" id="classForm">
-            <h2>Class Schedule</h2>
+            <!-- Class Schedule form -->
+            <main class="layout--center">
+                <form class="card" id="classForm">
+                    <h2>Class Schedule</h2>
 
-    <!-- Class ID-->
-    <label id = "classIdLabel" for="classID">Class ID
-        <select name="classId" id="classIdSelect" class="form-input" required>
-            <option value=""> -- Select Class Id --</option>
-            <!-- Options will be populated by JavaScript-->
-        </select>
-    </label>
-
-        <!-- Toggle with ClassIdLabel -->
-    <label id="classIdTextLabel" style="display: none;">Class ID</label>
-        <input id="classIdText" type="text" name="classId" readonly/>
-    </label>
-
-    <!-- Class Name -->
-    <label>Class Name
-        <input type="text" name="className" class="form-input" required>
-    </label>
-
-    <!-- Instructor -->
-    <label>Instructor
-        <select name="instructorId" id="instructorSelect" class="form-input" required>
-            <option value=""> -- Select Instructor --</option>
-            <!-- Options will be populated by JavaScript-->
-        </select>
-    </label>
-
-    <!-- Class Type -->
-    <label>Class Type
-        <select name="classType" class="form-input" required>
-            <option value="General">General</option>
-            <option value="Special">Special</option>
-        </select>
-    </label>
-    
-    <!-- Description -->
-    <label>Description
-        <textarea name="description" rows="3" class="form-input"></textarea>
-    </label>
-
-    <!-- Day/Time Entries -->
-    <div id="daytimeContainer">
-        <div class="daytime-entry" style="display: flex; gap: 10px; align-items: center;">
-            <label>Day
-                <select name="day" class="form-input" style="width: 150px">
-                    <option value="Mon">Monday</option>
-                    <option value="Tue">Tuesday</option>
-                    <option value="Wed">Wednesday</option>
-                    <option value="Thu">Thursday</option>
-                    <option value="Fri">Friday</option>
-                    <option value="Sat">Saturday</option>
-                    <option value="Sun">Sunday</option>
+            <!-- Class ID-->
+            <label id = "classIdLabel" for="classID">Class ID
+                <select name="classId" id="classIdSelect" class="form-input" required>
+                    <option value=""> -- Select Class Id --</option>
+                    <!-- Options will be populated by JavaScript-->
                 </select>
             </label>
-            <label>Time
-                <input type="time" name="time" class="form-input" style="width: 120px"/>
-            </label>
-            <label>Duration (mins)
-                <input type="number" name="duration" class="form-input" style="width: 80px"/>
-            </label>
-        </div>
-    </div>
-    <button type="button" id="addDaytimeBtn">+ Add Another Day</button>
 
-    <!-- Action buttons -->
-    <div class="button-row">
-        <button type="button" class="btn" id="searchBtn">Search</button>
-        <button type="button" class="btn btn--primary" id="addBtn">Add New</button>
-        <button type="button" class="btn" id="saveBtn">Save</button>
-        <button type="button" class="btn btn--danger" id="deleteBtn">Delete</button>
-        <a href="dashboard.html" class="btn">Exit</a>
-    </div>
+                <!-- Toggle with ClassIdLabel -->
+            <label id="classIdTextLabel" style="display: none;">Class ID
+                <input id="classIdText" type="text" name="classId" readonly/>
+            </label>
 
-    </form>
-</main>
+            <!-- Class Name -->
+            <label>Class Name
+                <input type="text" name="className" class="form-input" required>
+            </label>
+
+            <!-- Instructor -->
+            <label>Instructor
+                <select name="instructorId" id="instructorSelect" class="form-input" required>
+                    <option value=""> -- Select Instructor --</option>
+                    <!-- Options will be populated by JavaScript-->
+                </select>
+            </label>
+
+            <!-- Class Type -->
+            <label>Class Type
+                <select name="classType" class="form-input" required>
+                    <option value="General">General</option>
+                    <option value="Special">Special</option>
+                </select>
+            </label>
+            
+            <!-- Description -->
+            <label>Description
+                <textarea name="description" rows="3" class="form-input"></textarea>
+            </label>
+
+            <!-- Day/Time Entries -->
+            <div id="daytimeContainer">
+                <div class="daytime-entry" style="display: flex; gap: 10px; align-items: center;">
+                    <label>Day
+                        <select name="day" class="form-input" style="width: 150px">
+                            <option value="Mon">Monday</option>
+                            <option value="Tue">Tuesday</option>
+                            <option value="Wed">Wednesday</option>
+                            <option value="Thu">Thursday</option>
+                            <option value="Fri">Friday</option>
+                            <option value="Sat">Saturday</option>
+                            <option value="Sun">Sunday</option>
+                        </select>
+                    </label>
+                    <label>Time
+                        <input type="time" name="time" class="form-input" style="width: 120px"/>
+                    </label>
+                    <label>Duration (mins)
+                        <input type="number" name="duration" class="form-input" style="width: 80px"/>
+                    </label>
+                </div>
+            </div>
+            <button type="button" id="addDaytimeBtn">+ Add Another Day</button>
+
+            <!-- Action buttons -->
+            <div class="button-row">
+                <button type="button" class="btn" id="searchBtn">Search</button>
+                <button type="button" class="btn btn--primary" id="addBtn">Add New</button>
+                <button type="button" class="btn" id="saveBtn">Save</button>
+                <button type="button" class="btn btn--danger" id="deleteBtn">Delete</button>
+                <a href="dashboard.html" class="btn">Exit</a>
+            </div>
+
+            </form>
+        </main>
+        <script src="../js/class.js"></script>
+    </body>
+</html>
