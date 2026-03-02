@@ -39,7 +39,7 @@ exports.getNextId = async (req, res) => {
                 maxNumber = parseInt(match[0]) + 1;
             }
         }
-        const nextId = `A${maxNumber}`;
+        const nextId = `A${String(maxNumber).padStart(3, '0')}`;
         res.json({ nextId });
     } catch (e) {
         res.status(400).json({ error: e.message });
