@@ -5,14 +5,13 @@ document.addEventListener("DOMContentLoaded", () => {
     setFormForSearch();
     initPackageDropdown();
     addPackageDropdownListener();
-    initPackageDropdown();
 });
 
 //SEARCH
 document.getElementById("searchBtn").addEventListener("click", async () => {
-    clearClassForm();
+    clearPackageForm();
     setFormForSearch();
-    initClassDropdown();
+    initPackageDropdown();
 });
 
 //ADD
@@ -23,13 +22,13 @@ document.getElementById("addBtn").addEventListener("click", async () => {
 //SAVE
 document.getElementById("saveBtn").addEventListener("click", async () => {
     if (formMode === "add") {
-        await saveClass();
+        await savePackage();
     }
 });
 
 //DELETE
 document.getElementById("deleteBtn").addEventListener("click", async () => {
-    await deleteClass();
+    await deletePackage();
 });
 
 //Populate package dropdown
@@ -50,123 +49,76 @@ async function initPackageDropdown() {
     }
 }
 
-
-// Add a new daytime entry row
-function addDaytimeEntry() {
-    const container = document.getElementById("daytimeContainer");
-    const entry = document.createElement("div");
-    entry.className = "daytime-entry";
-    entry.style = "display: flex; gap: 10px; align-items: center;";
-    entry.innerHTML = `
-        <label>Day
-            <select name="day" class="form-input" style="width: 150px;">
-                <option value="Mon">Monday</option>
-                <option value="Tue">Tuesday</option>
-                <option value="Wed">Wednesday</option>
-                <option value="Thu">Thursday</option>
-                <option value="Fri">Friday</option>
-                <option value="Sat">Saturday</option>
-                <option value="Sun">Sunday</option>
-            </select>
-        </label>
-        <label>Time
-            <input type="time" name="time" class="form-input" style="width: 120px;"/>
-        </label>
-        <label>Duration (mins)
-            <input type="number" name="duration" class="form-input" style="width: 60px;"/>
-        </label>
-        <button type="button" onclick="this.parentElement.remove()">Remove</button>
-    `;
-    container.appendChild(entry);
-}
-
-// Collect all daytime entries from the form
-function collectDaytimeEntries() {
-    const entries = [];
-    const daytimeEntries = document.querySelectorAll(".daytime-entry");
-    daytimeEntries.forEach((entry) => {
-        const day = entry.querySelector("[name='day']").value;
-        const time = entry.querySelector("[name='time']").value;
-        const duration = parseInt(entry.querySelector("[name='duration']").value);
-        if (day && time && duration) {
-            entries.push({ day, time, duration });
-        }
-    });
-    return entries;
-}
-
-async function saveClass() {
+async function savePackage() {
     try {
-        // Get next class ID
-        const idRes = await fetch("/api/class/getNextId");
+        // Validate form before proceeding
+        const form = document.getElementById("packageForm");
+        
+        if (!form.package.value.trim() || !form.packageType.value || 
+            !form.classNum.value || !form.classType.value.trim() ||
+            !form.startDate.value || !form.endDate.value || !form.price.value) {
+            throw new Error("All fields are required");
+        }
+        
+        // Validate price is a positive number
+        const price = parseFloat(form.price.value);
+        if (isNaN(price) || price <= 0) {
+            throw new Error("Price must be a positive number");
+        }
+        
+        // Handle classNum - can be "Unlimited" or a positive number
+        const classNum = form.classNum.value;
+        if (classNum !== "Unlimited") {
+            const classNumValue = parseInt(classNum);
+            if (isNaN(classNumValue) || classNumValue <= 0) {
+                throw new Error("Class number must be a positive number");
+            }
+        }
+        
+        // Validate date range
+        const startDate = new Date(form.startDate.value);
+        const endDate = new Date(form.endDate.value);
+        if (endDate <= startDate) {
+            throw new Error("End date must be after start date");
+        }
+
+        // Get next package ID with error handling
+        const idRes = await fetch("/api/package/getNextId");
+        if (!idRes.ok) {
+            throw new Error("Failed to get next package ID");
+        }
         const { nextId } = await idRes.json();
 
-        const form = document.getElementById("classForm");
-
-        // Collect daytime entries
-        const daytime = collectDaytimeEntries();
-        if (daytime.length === 0) {
-            alert("❌ Please add at least one day and time.");
-            return;
-        }
-
-        const classData = {
-            classId: nextId,
-            className: form.className.value.trim(),
-            instructorId: form.instructorId.value,
-            classType: form.classType.value,
-            description: form.description.value.trim(),
-            daytime: daytime
+        const packageData = {
+            packageId: nextId,
+            package: form.package.value.trim(),
+            packageType: form.packageType.value,
+            classNum: classNum,  // Keep as-is (either "Unlimited" or numeric string)
+            classType: form.classType.value.trim(),
+            startDate: form.startDate.value,
+            endDate: form.endDate.value,
+            price: price
         };
 
-        const res = await fetch("/api/class/add", {
+        const res = await fetch("/api/package/add", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(classData)
+            body: JSON.stringify(packageData)
         });
 
         const result = await res.json();
 
-        // Handle conflict response
-        if (res.status === 409) {
-            let conflictMessage = "❌ Scheduling conflict detected:\n";
-            result.conflicts.forEach((c) => {
-                conflictMessage += `\n- ${c.day} at ${c.time} conflicts with "${c.conflictsWith}" (${c.existingTime}, ${c.existingDuration} mins)`;
-            });
-            alert(conflictMessage);
-            return;
+        if (!res.ok) {
+            throw new Error(result.message || "Failed to add package");
         }
 
-        if (!res.ok) throw new Error(result.message || "Failed to add class");
-
-        alert(`✅ Class ${nextId} scheduled successfully!`);
+        alert(`✅ Package ${nextId} scheduled successfully!`);
         form.reset();
-        initClassDropdown();
+        await initPackageDropdown();
 
     } catch (err) {
         alert("❌ Error: " + err.message);
-    }
-}
-
-async function deleteClass() {
-    const select = document.getElementById("packageIdSelect");
-    const classId = select.value;
-
-    if (!packageId) {
-        alert("Please select a class to delete.");
-        return;
-    }
-
-    const response = await fetch(`/api/class/deleteClass?packageId=${packageId}`, {
-        method: "DELETE"
-    });
-
-    if (!response.ok) {
-        throw new Error("Package delete failed");
-    } else {
-        alert(`Package ${packageId} successfully deleted`);
-        clearPackageForm();
-        initPackageDropdown();
+        console.error("Save error:", err);
     }
 }
 
@@ -188,28 +140,44 @@ async function addPackageDropdownListener() {
             }
 
             // Fill form with data
-            form.className.value = data.className || "";
-            form.instructorId.value = data.instructorId || "";
+            form.package.value = data.package || "";
+            form.packageType.value = data.packageType || "";
+            form.classNum.value = data.classNum || "";
             form.classType.value = data.classType || "";
-            form.description.value = data.description || "";
-
-            // Clear and repopulate daytime entries
-            const container = document.getElementById("daytimeContainer");
-            container.innerHTML = "";
-            data.daytime.forEach((slot) => {
-                addDaytimeEntry();
-                const entries = container.querySelectorAll(".daytime-entry");
-                const lastEntry = entries[entries.length - 1];
-                lastEntry.querySelector("[name='day']").value = slot.day;
-                lastEntry.querySelector("[name='time']").value = slot.time;
-                lastEntry.querySelector("[name='duration']").value = slot.duration;
-            });
+            form.startDate.value = data.startDate || "";
+            form.endDate.value = data.endDate || "";
+            form.price.value = data.price || "";
+        
 
         } catch (err) {
             alert(`Error loading package: ${err.message}`);
         }
     });
 }
+
+async function deletePackage() {
+    const select = document.getElementById("packageIdSelect");
+    const packageId = select.value;
+
+    if (!packageId) {
+        alert("Please select a package to delete.");
+        return;
+    }
+
+    const response = await fetch(`/api/package/deletePackage?packageId=${packageId}`, {
+        method: "DELETE"
+    });
+
+    if (!response.ok) {
+        throw new Error("Package delete failed");
+    } else {
+        alert(`Package ${packageId} successfully deleted`);
+        clearPackageForm();
+        initPackageDropdown();
+    }
+}
+
+
 
 function clearPackageForm() {
     document.getElementById("packageForm").reset();
@@ -233,8 +201,5 @@ function setFormForAdd() {
     document.getElementById("packageIdTextLabel").style.display = "block";
     document.getElementById("packageIdText").value = "";
     document.getElementById("packageForm").reset();
-    // Reset daytime container to one blank entry
-    const container = document.getElementById("daytimeContainer");
-    container.innerHTML = "";
-    addDaytimeEntry();
 }
+
