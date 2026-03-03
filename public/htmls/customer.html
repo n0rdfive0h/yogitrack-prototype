@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YogiTrack • Customers</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="layout--sidebar">
+  <!-- Re-use the same sidebar -->
+  <aside class="sidebar">
+    <a class="logo-wrap" href="dashboard.html">
+      <img src="../images/Logo.png" alt="YogaTrack Logo" class="logo">
+    </a>
+    <nav class="nav">
+      <a href="instructor.html">Instructors</a>
+      <a href="package.html">Packages</a>
+      <a href="class.html">Class Schedule</a>
+      <a href="customer.html">Customers</a>
+      <a href="#">Check-ins</a>
+      <a href="../index.html">Log Out</a>
+    </nav>
+  </aside>
+
+  <!-- Customer form -->
+  <main class="layout--center">
+    <form class="card" id="customerForm">
+      <h2>Customer Details</h2>
+
+      <!-- Customer Id -->
+      <label id="customerIdLabel" for="customerIdSelect">Customer ID
+        <select name="customerId" id="customerIdSelect" class="form-input" required>
+          <option value=""> -- Select Customer Id --</option>
+          <!-- Options will be populated by JavaScript -->
+        </select>
+      </label>
+
+
+      <!-- Keep a hidden field to submit/store the current customerId if needed -->
+      <input type="text" id="customerIdHidden" name="customerId" readonly hidden />
+
+      <div class="grid-2">
+        <label>First&nbsp;Name
+          <input type="text" id="firstname" name="firstname" required>
+        </label>
+        <label>Last&nbsp;Name
+          <input type="text" id="lastname" name="lastname" required>
+        </label>
+      </div>
+
+      <label>Address
+        <textarea id="address" name="address" rows="2" required></textarea>
+      </label>
+
+      <div class="grid-2">
+        <label>Phone
+          <input type="tel" id="phone" name="phone" required>
+        </label>
+        <label>Email
+          <input type="email" id="email" name="email" required>
+        </label>
+      </div>
+
+      <fieldset>
+        <legend>Preferred Contact</legend>
+        <div class="radio-row">
+          <label><input type="radio" name="pref" value="phone" required>Phone</label>
+          <label><input type="radio" name="pref" value="email" required>Email</label>
+        </div>
+      </fieldset>
+
+      <div class="grid-2">
+        <label>Class Balance
+          <input type="number" id="classBalance" name="classBalance" value="0" min="0" readonly>
+        </label>
+
+      </div>
+
+      <!-- Action buttons -->
+      <div class="btn-row">
+        <button type="button" class="btn" id="searchBtn">Search</button>
+        <button type="button" class="btn btn--primary" id="addBtn">Add&nbsp;New</button>
+        <button type="button" class="btn" id="saveBtn">Save</button>
+        <button type="button" class="btn btn--danger" id="deleteBtn">Delete</button>
+        <button type="button" class="btn" onclick="clearCustomerForm()">Clear</button>
+        <a href="dashboard.html" class="btn">Exit</a>
+      </div>
+    </form>
+  </main>
+
+  <script src="../js/customer.js"></script>
+</body>
+</html>
