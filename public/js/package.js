@@ -34,7 +34,7 @@ document.getElementById("deleteBtn").addEventListener("click", async () => {
 //Populate package dropdown
 async function initPackageDropdown() {
     const select = document.getElementById("packageIdSelect");
-    select.innerHTML = "<option value=''>-- Select Class Id --</option>";
+    select.innerHTML = "<option value=''>-- Select Package Id --</option>";
     try {
         const response = await fetch("/api/package/getPackageIds");
         const packageIds = await response.json();
@@ -54,7 +54,7 @@ async function savePackage() {
         // Validate form before proceeding
         const form = document.getElementById("packageForm");
         
-        if (!form.package.value.trim() || !form.packageType.value || 
+        if (!form.packageName.value.trim() || !form.packageCategory.value || 
             !form.classNum.value || !form.classType.value.trim() ||
             !form.startDate.value || !form.endDate.value || !form.price.value) {
             throw new Error("All fields are required");
@@ -83,7 +83,7 @@ async function savePackage() {
         }
 
         // Get next package ID with error handling
-        const idRes = await fetch("/api/package/getNextId");
+        const idRes = await fetch(`/api/package/getNextId?packageCategory=${form.packageCategory.value}`);
         if (!idRes.ok) {
             throw new Error("Failed to get next package ID");
         }
@@ -91,10 +91,10 @@ async function savePackage() {
 
         const packageData = {
             packageId: nextId,
-            package: form.package.value.trim(),
-            packageType: form.packageType.value,
-            classNum: classNum,  // Keep as-is (either "Unlimited" or numeric string)
-            classType: form.classType.value.trim(),
+            packageName: form.packageName.value.trim(),
+            packageCategory: form.packageCategory.value,
+            classNum: classNum,
+            classType: form.classType.value,
             startDate: form.startDate.value,
             endDate: form.endDate.value,
             price: price
@@ -140,8 +140,8 @@ async function addPackageDropdownListener() {
             }
 
             // Fill form with data
-            form.package.value = data.package || "";
-            form.packageType.value = data.packageType || "";
+            form.packageName.value = data.packageName || "";
+            form.packageCategory.value = data.packageCategory || "";
             form.classNum.value = data.classNum || "";
             form.classType.value = data.classType || "";
             form.startDate.value = data.startDate || "";
@@ -163,6 +163,9 @@ async function deletePackage() {
         alert("Please select a package to delete.");
         return;
     }
+
+    const ok = confirm(`Delete package ${packageId}?`);
+    if (!ok) return;
 
     const response = await fetch(`/api/package/deletePackage?packageId=${packageId}`, {
         method: "DELETE"

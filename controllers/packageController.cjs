@@ -24,7 +24,7 @@ exports.getPackage = async (req, res) => {
 
 exports.getNextId = async (req, res) => {
     try {
-        const senior = req.query.senior === "true";
+        const senior = req.query.packageCategory === "true";
         const prefix = senior ? "S" : "P";
 
         const lastPackage = await Package.find({ packageId: new RegExp(`^${prefix}`) })
@@ -64,16 +64,24 @@ exports.addPackage = async (req, res) => {
         const {
             packageId,
             packageName,
-            description,
-            price,
+            packageCategory,
+            classNum,
+            classType,
+            startDate,
+            endDate,
+            price
         } = req.body;
-        if (!packageName || !description || !price) {
+        if (!packageName || !packageCategory || !classNum || !classType || !startDate || !endDate || !price) {
             return res.status(400).json({ error: "Missing required fields" });
         }
         const newPackage = new Package({
             packageId,
             packageName,
-            description,
+            packageCategory,
+            classNum,
+            classType,
+            startDate,
+            endDate,
             price
         });
         await newPackage.save();

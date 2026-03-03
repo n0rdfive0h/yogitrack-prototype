@@ -4,7 +4,11 @@ require("../config/mongodbconn.cjs");
 const packageModel = new mongoose.Schema({
     packageId: String,
     packageName: String,
-    description: String,
+    packageCategory: String,
+    classNum: String,
+    classType: String,
+    startDate: String,
+    endDate: String,
     price: Number
 }, {collection: "package"});
 
