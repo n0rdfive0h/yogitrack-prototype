@@ -35,16 +35,17 @@
         </select>
       </label>
 
-
-      <!-- Keep a hidden field to submit/store the current customerId if needed -->
-      <input type="text" id="customerIdHidden" name="customerId" readonly hidden />
+      <!-- Toggle with customerIdLabel -->
+      <label id="customerIdTextLabel" style="display: none;">Customer ID
+          <input id="customerIdText" type="text" name="customerId" readonly/>
+      </label>
 
       <div class="grid-2">
         <label>First&nbsp;Name
-          <input type="text" id="firstname" name="firstname" required>
+          <input type="text" id="firstName" name="firstName" required>
         </label>
         <label>Last&nbsp;Name
-          <input type="text" id="lastname" name="lastname" required>
+          <input type="text" id="lastName" name="lastName" required>
         </label>
       </div>
 
@@ -70,6 +71,9 @@
       </fieldset>
 
       <div class="grid-2">
+        <label>Senior
+            <input type="checkbox" name="senior" id="senior">
+        </label>
         <label>Class Balance
           <input type="number" id="classBalance" name="classBalance" value="0" min="0" readonly>
         </label>
