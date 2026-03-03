@@ -38,10 +38,10 @@ async function initPackageDropdown() {
     try {
         const response = await fetch("/api/package/getPackageIds");
         const packageIds = await response.json();
-        packageIds.forEach((c) => {
+        packageIds.forEach((p) => {
             const option = document.createElement("option");
-            option.value = c.packageId;
-            option.textContent = `${c.packageId}: ${c.packageName}`;
+            option.value = p.packageId;
+            option.textContent = `${p.packageId}: ${p.packageName}`;
             select.appendChild(option);
         });
     } catch (err) {
