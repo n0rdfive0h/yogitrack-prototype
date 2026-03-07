@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <title>YogiTrack • Reports</title>
+    <link rel="stylesheet" href="../css/style.css">
+    </head>
+    <body class="layout--sidebar">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <a class="logo-wrap" href="dashboard.html">
+                <img src="../images/Logo.png" alt="YogaTrack Logo" class="logo">
+            </a>
+            <nav class="nav">
+                <a href="instructor.html">Instructors</a>
+                <a href="package.html">Packages</a>
+                <a href="class.html">Class Schedule</a>
+                <a href="customer.html">Customers</a>
+                <a href="#">Check-ins</a>
+                <a href="reports.html">Reports</a>
+                <a href="../index.html">Log Out</a>
+            </nav>
+        </aside>
+
+        <main class="layout--center">
+            <div class="card">
+                <h2>Studio Reports</h2>
+
+                <!-- Report Results Area -->
+                <div id="reportResults" style="overflow-y: auto; max-height: 500px; min-height: 300px;">
+                    <!-- Report data populates here -->
+                    <p id="reportPlaceholder" style="color: gray; text-align: center; margin-top: 100px;">
+                        Select a report to view
+                    </p>
+                </div>
+
+                <!-- Month/Year selector, hidden until Teacher Payment Report is selected -->
+                <div id="monthSelector" style="display: none;">
+                    <label>Select Month & Year
+                        <input type="month" id="reportMonth" class="form-input"/>
+                    </label>
+                </div>
+
+                <!-- Report buttons -->
+                <div class="btn-row">
+                    <button type="button" class="btn" id="packageSalesBtn">Package Sales</button>
+                    <button type="button" class="btn" id="instructorReportBtn">Instructor Report</button>
+                    <button type="button" class="btn" id="customerReportBtn">Customer Report</button>
+                    <button type="button" class="btn" id="paymentReportBtn">Teacher Payment</button>
+                    <button type="button" class="btn btn--danger" id="clearReportBtn">Clear</button>
+                    <a href="dashboard.html" class="btn">Exit</a>
+                </div>
+
+            </div>
+        </main>
+
+        <script src="../js/reports.js"></script>
+    </body>
+</html>
