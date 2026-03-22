@@ -30,6 +30,35 @@ document.getElementById("deleteBtn").addEventListener("click", async () => {
   await deleteCustomer();
 });
 
+// Upload CSV button triggers hidden file input
+document.getElementById("uploadCSVBtn").addEventListener("click", () => {
+    document.getElementById("csvFileInput").click();
+});
+
+// When a file is selected, send it to the server
+document.getElementById("csvFileInput").addEventListener("change", async () => {
+    const file = document.getElementById("csvFileInput").files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("csvFile", file);
+
+    try {
+        const res = await fetch("/api/customer/uploadCSV", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || "Upload failed");
+
+        alert(`✅ ${result.message}`);
+        initCustomerDropdown();
+    } catch (err) {
+        alert("❌ Error: " + err.message);
+    }
+});
+
 // Populate customer dropdown
 async function initCustomerDropdown() {
   const select = document.getElementById("customerIdSelect");
