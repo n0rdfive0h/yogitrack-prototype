@@ -100,6 +100,82 @@
             </div>
 
             </form>
+            <form class="card" id="packageForm">
+                    <h2>Packages</h2>
+
+            <label id = "packageIdLabel" for="packageID">Package ID
+                <select name="packageId" id="packageIdSelect" class="form-input">
+                    <option value=""> -- Select Package Id --</option>
+                    <!-- Options will be populated by JavaScript-->
+                </select>
+            </label>
+
+                <!-- Toggle with PackageIdLabel -->
+            <label id="packageIdTextLabel" style="display: none;">Package ID
+                <input id="packageIdText" type="text" name="packageId" readonly/>
+            </label>
+
+
+            <!-- Package Name -->
+            <label>Package Name
+                <input type="text" name="packageName" class="form-input" required/>
+            </label>
+
+            
+            <!-- Package Category -->
+            <label>Package Category
+                <select name="packageCategory" class="form-input" required>
+                    <option value="General">General</option>
+                    <option value="Senior">Senior</option>
+                </select>
+            </label>
+            
+
+            <!-- Number of Classes -->
+            <label>Number of Classes
+                <select name="classNum" class="form-input" required>
+                    <option value="1">1 Class</option>
+                    <option value="4">4 Classes</option>
+                    <option value="10">10 Classes</option>
+                    <option value="Unlimited">Unlimited Classes</option>
+                </select>
+            </label>
+            
+            <!-- Class Type -->
+            <label>Class Type
+                <select name="classType" class="form-input" required>
+                    <option value="General">General</option>
+                    <option value="Special">Special</option>
+                    
+                </select>
+            </label>
+            
+
+            <!-- Start/End/Price Entries -->
+            <div id="packageEntries">
+                <div class="entries" style="display: flex; gap: 10px; align-items: center;">
+                    <label>Start Date
+                        <input type="date" name="startDate" class="form-input" style="width: 140px"/>
+                    </label>
+                    <label>End Date
+                        <input type="date" name="endDate" class="form-input" style="width: 140px"/>
+                    </label>
+                    <label>Price $
+                        <input type="number" name="price" class="form-input" style="width: 80px" min="0"/>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="btn-row">
+                <button type="button" class="btn" id="searchBtn">Search</button>
+                <button type="button" class="btn btn--primary" id="addBtn">Add New</button>
+                <button type="button" class="btn" id="saveBtn">Save</button>
+                <button type="button" class="btn btn--danger" id="deleteBtn">Delete</button>
+                <a href="dashboard.html" class="btn">Exit</a>
+            </div>
+
+            </form>
         </main>
         <script src="../js/package.js"></script>
     </body>
