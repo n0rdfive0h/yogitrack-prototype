@@ -1,10 +1,18 @@
 let formMode = "search"; // Tracks the current mode of the form
+let saleFormMode = "search";
 
+
+// -- PACKAGE FORM FUNCTIONS -- 
 // Fetch all class IDs and populate the dropdown
 document.addEventListener("DOMContentLoaded", () => {
     setFormForSearch();
+    setFormForSaleSearch();
     initPackageDropdown();
+    initCustomerDropdown();
+    initSalePackageDropdown();
     addPackageDropdownListener();
+    addSaleDropdownListener();
+    addSalePackageDropdownListener();
 });
 
 //SEARCH
@@ -83,7 +91,7 @@ async function savePackage() {
         }
 
         // Get next package ID with error handling
-        const idRes = await fetch(`/api/package/getNextId?packageCategory=${form.packageCategory.value}`);
+        const idRes = await fetch(`/api/package/getNextPackageId?packageCategory=${form.packageCategory.value}`);
         if (!idRes.ok) {
             throw new Error("Failed to get next package ID");
         }
@@ -180,8 +188,6 @@ async function deletePackage() {
     }
 }
 
-
-
 function clearPackageForm() {
     document.getElementById("packageForm").reset();
     document.getElementById("packageIdSelect").innerHTML = "";
@@ -206,3 +212,243 @@ function setFormForAdd() {
     document.getElementById("packageForm").reset();
 }
 
+
+// -- SALE FORM FUNCTIONS -- 
+// SALE SEARCH
+document.getElementById("saleSearchBtn").addEventListener("click", async () => {
+    clearSaleForm();
+    setFormForSaleSearch();
+    initSaleDropdown();
+});
+
+// SALE ADD
+document.getElementById("saleAddBtn").addEventListener("click", async () => {
+    setFormForSaleAdd();
+    initCustomerDropdown();
+    initSalePackageDropdown();
+});
+
+// SALE SAVE
+document.getElementById("saleSaveBtn").addEventListener("click", async () => {
+    if (saleFormMode === "add") {
+        await saveSale();
+    }
+});
+
+// SALE DELETE
+document.getElementById("saleDeleteBtn").addEventListener("click", async () => {
+    await deleteSale();
+});
+
+// Populate sale dropdown
+async function initSaleDropdown() {
+    const select = document.getElementById("saleIdSelect");
+    select.innerHTML = "<option value=''>-- Select Sale Id --</option>";
+    try {
+        const response = await fetch("/api/package/getSaleIds");
+        const saleIds = await response.json();
+        saleIds.forEach((s) => {
+            const option = document.createElement("option");
+            option.value = s.saleId;
+            option.textContent = `${s.saleId}`;
+            select.appendChild(option);
+        });
+    } catch (err) {
+        console.error("Failed to load sale IDs:", err);
+    }
+}
+
+// Populate customer dropdown for sale form
+async function initCustomerDropdown() {
+    const select = document.getElementById("customerIdSelect");
+    select.innerHTML = "<option value=''>-- Select Customer --</option>";
+    try {
+        const response = await fetch("/api/customer/getCustomerIds");
+        const customerIds = await response.json();
+        customerIds.forEach((c) => {
+            const option = document.createElement("option");
+            option.value = c.customerId;
+            option.textContent = `${c.customerId}: ${c.firstName} ${c.lastName}`;
+            select.appendChild(option);
+        });
+    } catch (err) {
+        console.error("Failed to load customer IDs:", err);
+    }
+}
+
+// Populate package dropdown for sale form
+async function initSalePackageDropdown() {
+    const select = document.getElementById("salePackageIdSelect");
+    select.innerHTML = "<option value=''>-- Select Package --</option>";
+    try {
+        const response = await fetch("/api/package/getPackageIds");
+        const packageIds = await response.json();
+        packageIds.forEach((p) => {
+            const option = document.createElement("option");
+            option.value = p.packageId;
+            option.textContent = `${p.packageId}: ${p.packageName}`;
+            select.appendChild(option);
+        });
+    } catch (err) {
+        console.error("Failed to load package IDs:", err);
+    }
+}
+
+async function saveSale() {
+    try {
+        const form = document.getElementById("packageSaleForm");
+
+        // Get next sale ID
+        const idRes = await fetch("/api/package/getNextSaleId");
+        const { nextId } = await idRes.json();
+
+        const purchaseDate = form.purchaseDate.value;
+        const purchaseTime = form.purchaseTime.value;
+        const dateTime = `${purchaseDate} ${purchaseTime}`;
+
+        const saleData = {
+            saleId: nextId,
+            customerId: form.customerId.value,
+            Package: {
+                packageId: document.getElementById("salePackageIdSelect").value,
+                startDate: form.startDate.value,
+                endDate: form.endDate.value,
+                amountPaid: parseFloat(form.amountPaid.value)
+            },
+            paymentMode: form.modeOfPayment.value.trim(),
+            dateTime: dateTime
+        };
+
+        const res = await fetch("/api/package/addSale", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(saleData)
+        });
+
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.message || "Failed to log sale");
+
+        // Fetch updated customer balance
+        const customerRes = await fetch(`/api/customer/getCustomer?customerId=${saleData.customerId}`);
+        const customerData = await customerRes.json();
+
+        alert(`✅ Sale ${nextId} logged successfully!\n\nCustomer ${saleData.customerId} class balance updated to: ${customerData.classBalance}`);
+        form.reset();
+        initSaleDropdown();
+        initCustomerDropdown();
+
+    } catch (err) {
+        alert("❌ Error: " + err.message);
+    }
+}
+
+async function deleteSale() {
+    const select = document.getElementById("saleIdSelect");
+    const saleId = select.value;
+
+    if (!saleId) {
+        alert("Please select a sale to delete.");
+        return;
+    }
+
+    const ok = confirm(`Delete sale ${saleId}?`);
+    if (!ok) return;
+
+    const response = await fetch(`/api/package/deleteSale?saleId=${saleId}`, {
+        method: "DELETE"
+    });
+
+    if (!response.ok) {
+        alert("❌ Sale delete failed");
+    } else {
+        alert(`✅ Sale ${saleId} successfully deleted`);
+        clearSaleForm();
+        initSaleDropdown();
+    }
+}
+
+async function addSaleDropdownListener() {
+    const form = document.getElementById("packageSaleForm");
+    const select = document.getElementById("saleIdSelect");
+    select.addEventListener("change", async () => {
+        const saleId = select.value;
+        if (!saleId) return;
+        try {
+            const res = await fetch(`/api/package/getSale?saleId=${saleId}`);
+            if (!res.ok) throw new Error("Sale search failed");
+
+            const data = await res.json();
+            if (!data || Object.keys(data).length === 0) {
+                alert("No sale found");
+                return;
+            }
+
+            // Fill form with data
+            form.customerId.value = data.customerId || "";
+            form.packageId.value = data.Package.packageId || "";
+            form.startDate.value = data.Package.startDate || "";
+            form.endDate.value = data.Package.endDate || "";
+            form.amountPaid.value = data.Package.amountPaid || "";
+            form.modeOfPayment.value = data.paymentMode || "";
+
+            // Split dateTime back into date and time
+            if (data.dateTime) {
+                const [date, time] = data.dateTime.split(" ");
+                form.purchaseDate.value = date || "";
+                form.purchaseTime.value = time || "";
+            }
+
+        } catch (err) {
+            alert(`Error loading sale: ${err.message}`);
+        }
+    });
+}
+
+async function addSalePackageDropdownListener() {
+    const form = document.getElementById("packageSaleForm");
+    const select = document.getElementById("salePackageIdSelect");
+    select.addEventListener("change", async () => {
+        const packageId = select.value;
+        if (!packageId) return;
+        try {
+            const res = await fetch(`/api/package/getPackage?packageId=${packageId}`);
+            if (!res.ok) throw new Error("Package fetch failed");
+
+            const data = await res.json();
+
+            // Auto populate fields from package
+            form.startDate.value = data.startDate || "";
+            form.endDate.value = data.endDate || "";
+            form.amountPaid.value = data.price || "";
+
+        } catch (err) {
+            alert(`Error loading package details: ${err.message}`);
+        }
+    });
+}
+
+function clearSaleForm() {
+    document.getElementById("packageSaleForm").reset();
+    document.getElementById("saleIdSelect").innerHTML = "";
+}
+
+function setFormForSaleAdd() {
+    saleFormMode = "add";
+    document.getElementById("packageSaleForm").reset();
+    document.getElementById("saleIdLabel").style.display = "none";
+    document.getElementById("saleIdTextLabel").style.display = "block";
+    document.getElementById("saleIdText").value = "";
+    document.getElementById("salePackageIdLabel").style.display = "block";
+    document.getElementById("salePackageIdTextLabel").style.display = "none";
+}
+
+function setFormForSaleSearch() {
+    saleFormMode = "search";
+    document.getElementById("saleIdLabel").style.display = "block";
+    document.getElementById("saleIdTextLabel").style.display = "none";
+    document.getElementById("saleIdText").value = "";
+    document.getElementById("salePackageIdLabel").style.display = "block";
+    document.getElementById("salePackageIdTextLabel").style.display = "none";
+    document.getElementById("salePackageIdText").value = "";
+    document.getElementById("packageSaleForm").reset();
+}

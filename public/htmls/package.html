@@ -106,6 +106,17 @@
                     <form class="card" id="packageSaleForm">
                             <h2>Package Sale</h2>
 
+                    <label id = "saleIdLabel" for="saleId">Sale ID
+                        <select name="saleId" id="saleIdSelect" class="form-input">
+                            <option value=""> -- Select Sale --</option>
+                            <!-- Options will be populated by JavaScript-->
+                        </select>
+                    </label>
+
+                    <label id="saleIdTextLabel" style="display: none;">Sale ID
+                        <input id="saleIdText" type="text" name="saleId" readonly/>
+                    </label>
+
                     <label id = "customerIdLabel" for="customerID">Customer ID
                         <select name="customerId" id="customerIdSelect" class="form-input">
                             <option value=""> -- Select Customer --</option>
@@ -129,7 +140,14 @@
 
                     <!-- Package Name -->
                     <label>Mode of Payment
-                        <input type="text" name="packageName" class="form-input"/>
+                        <select name="modeOfPayment" class="form-input">
+                            <option value="Cash">Cash</option>
+                            <option value="Credit/Debit">Credit/Debit</option>
+                        </select>
+                    </label>
+
+                    <label>Amount Paid
+                        <input type="text" name="amountPaid" class="form-input" style="width: 70px"/>
                     </label>
 
                     <label>Purchase Date

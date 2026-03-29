@@ -137,4 +137,4 @@ exports.addClass = async (req, res) => {
         console.error("Error adding class:", e.message);
         res.status(500).json({ message: "Failed to schedule class", error: e.message });
     }
-;}
+};
