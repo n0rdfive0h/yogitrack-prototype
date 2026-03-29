@@ -2,14 +2,14 @@
 <html lang="en">
     <head>
     <meta charset="UTF-8">
-    <title>YogiTrack • Packages</title>
+    <title>YogiTrack • Check-ins</title>
     <link rel="stylesheet" href="../css/style.css">
     </head>
     <body class="layout--sidebar">
-        <!-- Re-use the same sidebar -->
+        <!-- Sidebar -->
         <aside class="sidebar">
             <a class="logo-wrap" href="dashboard.html">
-            <img src="../images/Logo.png" alt="YogaTrack Logo" class="logo">
+                <img src="../images/Logo.png" alt="YogaTrack Logo" class="logo">
             </a>
             <nav class="nav">
                 <a href="instructor.html">Instructors</a>
@@ -21,5 +21,67 @@
                 <a href="../index.html">Log Out</a>
             </nav>
         </aside>
+
+        <main class="layout--center">
+            <form class="card" id="checkInForm">
+                <h2>Class Check-In</h2>
+
+                <!-- Instructor -->
+                <label>Instructor
+                    <select name="instructorId" id="instructorSelect" class="form-input">
+                        <option value=""> -- Select Instructor --</option>
+                    </select>
+                </label>
+
+                <!-- Class -->
+                <label>Class
+                    <select name="classId" id="classSelect" class="form-input">
+                        <option value=""> -- Select Class --</option>
+                    </select>
+                </label>
+
+                <!-- Date and Time -->
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label>Date
+                        <input type="date" name="checkInDate" class="form-input" style="width: 150px"/>
+                    </label>
+                    <label>Time
+                        <input type="time" name="checkInTime" class="form-input" style="width: 120px"/>
+                    </label>
+                </div>
+
+                <!-- Customer Selection -->
+                <label>Add Customer
+                    <select name="customerId" id="customerSelect" class="form-input">
+                        <option value=""> -- Select Customer --</option>
+                    </select>
+                </label>
+                <button type="button" class="btn" id="addCustomerBtn">+ Add to List</button>
+
+                <!-- Scrollable attendance list -->
+                <label>Attendance List</label>
+                <div id="attendanceList" style="
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    min-height: 100px;
+                    max-height: 200px;
+                    overflow-y: auto;
+                    padding: 8px;
+                    margin-top: 4px;">
+                    <p id="attendancePlaceholder" style="color: gray; text-align: center; margin-top: 30px;">
+                        No customers added yet
+                    </p>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="btn-row">
+                    <button type="button" class="btn btn--primary" id="submitAttendanceBtn">Submit</button>
+                    <button type="button" class="btn" id="clearBtn">Clear</button>
+                    <a href="dashboard.html" class="btn">Exit</a>
+                </div>
+
+            </form>
+        </main>
+        <script src="../js/checkIn.js"></script>
     </body>
 </html>
