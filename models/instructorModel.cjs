@@ -3,8 +3,8 @@ require("../config/mongodbconn.cjs");
 
 const instructorModel = new mongoose.Schema({
     instructorId: String,
-    firstname: String,
-    lastname: String,
+    firstName: String,
+    lastName: String,
     email: String,
     phone: String,
     address: String,

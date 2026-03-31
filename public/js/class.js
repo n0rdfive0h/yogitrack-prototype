@@ -65,7 +65,7 @@ async function initInstructorDropdown() {
         instructorIds.forEach((instr) => {
             const option = document.createElement("option");
             option.value = instr.instructorId;
-            option.textContent = `${instr.instructorId}: ${instr.firstname} ${instr.lastname}`;
+            option.textContent = `${instr.instructorId}: ${instr.firstName} ${instr.lastName}`;
             select.appendChild(option);
         });
     } catch (err) {

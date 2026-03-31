@@ -35,8 +35,8 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     
     const instructorData = {
       instructorId: nextId,
-      firstname: form.firstname.value.trim(),
-      lastname: form.lastname.value.trim(),
+      firstName: form.firstName.value.trim(),
+      lastName: form.lastName.value.trim(),
       address: form.address.value.trim(),
       phone: form.phone.value.trim(),
       email: form.email.value.trim(),
@@ -90,7 +90,7 @@ async function initInstructorDropdown() {
     instructorIds.forEach((instr) => {
       const option = document.createElement("option");
       option.value = instr.instructorId;
-      option.textContent = `${instr.instructorId}:${instr.firstname} ${instr.lastname}`;
+      option.textContent = `${instr.instructorId}:${instr.firstName} ${instr.lastName}`;
       select.appendChild(option);
     });
   } catch (err) {
@@ -118,8 +118,8 @@ async function addInstructorDropdownListener() {
       }
 
       //Fill form with data
-      form.firstname.value = data.firstname || "";
-      form.lastname.value = data.lastname || "";
+      form.firstName.value = data.firstName || "";
+      form.lastName.value = data.lastName || "";
       form.address.value = data.address || "";
       form.phone.value = data.phone || "";
       form.email.value = data.email || "";
