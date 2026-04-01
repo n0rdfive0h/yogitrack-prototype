@@ -1,6 +1,9 @@
 let formMode = "search"; // Tracks the current mode of the form
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  const user = await checkSession();
+  if (!user) return;
+  applyRoleRestrictions(user.role);
   setFormForSearch();
   initCustomerDropdown();
   addCustomerDropdownListener();

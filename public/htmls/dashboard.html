@@ -25,13 +25,22 @@
         <a href="customer.html">Customers</a>
         <a href="checkIn.html">Check-ins</a>
         <a href="reports.html">Reports</a>
-        <a href="../index.html">Log Out</a>
+        <a href="users.html">Users</a>
+        <a onclick="logout()" style="cursor: pointer;">Log Out</a>
       </nav>
     </aside>
 
 
   </div>
     </div> <!-- End of background wrapper -->
+    <script src="../js/auth.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const user = await checkSession();
+            if (!user) return;
+            applyRoleRestrictions(user.role);
+        });
+    </script>
 </body>
 
 </html>

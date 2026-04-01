@@ -1,5 +1,8 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     // Page loads with empty results area
+    const user = await checkSession();
+    if (!user) return;
+    applyRoleRestrictions(user.role);
 });
 
 // PACKAGE SALES REPORT

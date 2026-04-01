@@ -1,7 +1,10 @@
 let attendanceCustomers = [];
 
 // Load page data
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  const user = await checkSession();
+  if (!user) return;
+  applyRoleRestrictions(user.role);
   initInstructorDropdown();
   initCustomerDropdown();
   addInstructorDropdownListener();

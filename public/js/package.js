@@ -4,7 +4,10 @@ let saleFormMode = "search";
 
 // -- PACKAGE FORM FUNCTIONS -- 
 // Fetch all class IDs and populate the dropdown
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    const user = await checkSession();
+    if (!user) return;
+    applyRoleRestrictions(user.role);
     setFormForSearch();
     setFormForSaleSearch();
     initPackageDropdown();

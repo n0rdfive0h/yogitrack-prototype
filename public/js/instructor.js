@@ -1,7 +1,10 @@
 let formMode = "search"; // Tracks the current mode of the form
 
 // Fetch all instructor IDs and populate the dropdown
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  const user = await checkSession();
+  if (!user) return;
+  applyRoleRestrictions(user.role);
   setFormForSearch();
   initInstructorDropdown();
   addInstructorDropdownListener();

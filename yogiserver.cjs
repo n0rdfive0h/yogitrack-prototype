@@ -1,9 +1,18 @@
 const express = require("express");
+const session = require("express-session");
 const app = express();
 
 // Serve static files from the public dir
 app.use(express.static("public"));
 app.use(express.json());
+
+// Session middleware
+app.use(session({
+    secret: "yogitrack-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false }
+}));
 
 app.use("/api/instructor", require("./routes/instructorRoutes.cjs"));
 app.use("/api/class", require("./routes/classRoutes.cjs"));
@@ -11,6 +20,7 @@ app.use("/api/customer", require("./routes/customerRoutes.cjs"));
 app.use("/api/package", require("./routes/packageRoutes.cjs"));
 app.use("/api/checkIn", require("./routes/checkInRoutes.cjs"));
 app.use("/api/reports", require("./routes/reportsRoutes.cjs"));
+app.use("/api/auth", require("./routes/authRoutes.cjs"));
 
 
 // Start the web server
