@@ -20,12 +20,14 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "csv-parser": "^3.2.0",
+    "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "heroku": "^8.7.1",
     "mongodb": "^7.1.0",
     "mongoose": "^9.2.1",
     "mongoose-int32": "^0.6.0",
-    "multer": "^2.1.1"
+    "multer": "^2.1.1",
+    "nodemailer": "^8.0.4"
   }
 }

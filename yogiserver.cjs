@@ -1,5 +1,6 @@
 const express = require("express");
 const session = require("express-session");
+require("dotenv").config();
 const app = express();
 
 // Serve static files from the public dir
@@ -21,7 +22,7 @@ app.use("/api/package", require("./routes/packageRoutes.cjs"));
 app.use("/api/checkIn", require("./routes/checkInRoutes.cjs"));
 app.use("/api/reports", require("./routes/reportsRoutes.cjs"));
 app.use("/api/auth", require("./routes/authRoutes.cjs"));
-
+app.use("/api/messaging", require("./routes/messagingRoutes.cjs"));
 
 // Start the web server
 const PORT = process.env.PORT || 8080;
