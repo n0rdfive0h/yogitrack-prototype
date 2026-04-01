@@ -316,6 +316,7 @@ function hideWaiverModal() {
     const canvas = document.getElementById("signatureCanvas");
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    hasDrawn = false;
 }
 
 // Cancel button
