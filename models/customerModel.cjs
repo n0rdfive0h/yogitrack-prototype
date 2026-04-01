@@ -10,7 +10,9 @@ const customerModel = new mongoose.Schema({
     senior: Boolean,
     address: String,
     preferredContact: String,
-    classBalance: Number
+    classBalance: Number,
+    signature: String,
+    optIn: Boolean
 }, {collection: "customer"});
 
 module.exports = mongoose.model("Customer", customerModel);

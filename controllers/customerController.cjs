@@ -80,7 +80,9 @@ exports.addCustomer = async (req, res) => {
             address,
             preferredContact,
             classBalance,
-            confirmed
+            confirmed,
+            optIn,
+            signature
         } = req.body;
         if (!customerId || !firstName || !lastName || !address || !phone || !email || !preferredContact) {
             return res.status(400).json({ message: "Missing required fields" });
@@ -107,7 +109,9 @@ exports.addCustomer = async (req, res) => {
             senior,
             address,
             preferredContact,
-            classBalance
+            classBalance,
+            optIn,
+            signature
         });
 
         await newCustomer.save();

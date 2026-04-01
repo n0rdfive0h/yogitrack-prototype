@@ -76,6 +76,9 @@
         <label>Senior
             <input type="checkbox" name="senior" id="senior">
         </label>
+        <label>Message Opt In
+            <input type="checkbox" name="optIn" id="optIn">
+        </label>
         <label>Class Balance
           <input type="number" id="classBalance" name="classBalance" value="0" min="0" readonly>
         </label>
@@ -92,6 +95,60 @@
         <button type="button" class="btn" id="uploadCSVBtn">Upload CSV</button>
         <input type="file" id="csvFileInput" accept=".csv" style="display: none;"/>
         <a href="dashboard.html" class="btn">Exit</a>
+      </div>
+
+      <!-- Waiver Modal -->
+      <div id="waiverModal" style="
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.5);
+          z-index: 1000;
+          justify-content: center;
+          align-items: center;">
+
+          <div style="
+              background: white;
+              border-radius: 8px;
+              padding: 30px;
+              width: 600px;
+              max-height: 80vh;
+              overflow-y: auto;">
+
+              <h2>Customer Waiver</h2>
+
+              <!-- Waiver text placeholder -->
+              <div style="
+                  border: 1px solid #ccc;
+                  border-radius: 4px;
+                  padding: 15px;
+                  margin-bottom: 20px;
+                  max-height: 200px;
+                  overflow-y: auto;">
+                  <p>[ Waiver text will be placed here. Please read carefully before signing. ]</p>
+              </div>
+
+              <!-- Signature area -->
+              <label>Please sign below:</label>
+              <canvas id="signatureCanvas" width="500" height="150" style="
+                  border: 1px solid #ccc;
+                  border-radius: 4px;
+                  display: block;
+                  margin-top: 8px;
+                  cursor: crosshair;">
+              </canvas>
+
+              <!-- Modal buttons -->
+              <div class="btn-row" style="margin-top: 15px;">
+                  <button type="button" class="btn" id="clearSignatureBtn">Clear Signature</button>
+                  <button type="button" class="btn btn--primary" id="confirmSaveBtn">Confirm & Save</button>
+                  <button type="button" class="btn btn--danger" id="cancelWaiverBtn">Cancel</button>
+              </div>
+
+          </div>
       </div>
     </form>
   </main>

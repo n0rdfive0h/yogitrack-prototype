@@ -1,4 +1,7 @@
 let formMode = "search"; // Tracks the current mode of the form
+let isDrawing = false;
+let signatureData = null;
+let hasDrawn = false;
 
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await checkSession();
@@ -23,9 +26,20 @@ document.getElementById("addBtn").addEventListener("click", async () => {
 
 // SAVE
 document.getElementById("saveBtn").addEventListener("click", async () => {
-  if (formMode === "add") {
-    await saveCustomer();
+  if (formMode !== "add") return;
+
+  const form = document.getElementById("customerForm");
+
+  // Basic validation first
+  if (!form.firstName.value.trim() || !form.lastName.value.trim() || 
+      !form.address.value.trim() || !form.phone.value.trim() || 
+      !form.email.value.trim()) {
+      alert("❌ Please fill out all required fields.");
+      return;
   }
+
+  // Show waiver modal
+  showWaiverModal();
 });
 
 // DELETE
@@ -73,7 +87,7 @@ async function initCustomerDropdown() {
     customerIds.forEach((cust) => {
       const option = document.createElement("option");
       option.value = cust.customerId;
-      option.textContent = `${cust.customerId}:${cust.firstName} ${cust.lastName}`;
+      option.textContent = `${cust.customerId}: ${cust.firstName} ${cust.lastName}`;
       select.appendChild(option);
     });
   } catch (err) {
@@ -141,66 +155,65 @@ function setFormForAdd() {
     document.getElementById("customerForm").reset();
 }
 
-async function saveCustomer() {
-    try {
-        // Get next customer ID
-        const idRes = await fetch("/api/customer/getNextId");
-        const { nextId } = await idRes.json();
+async function saveCustomer(signature) {
+  try {
+      const idRes = await fetch("/api/customer/getNextId");
+      const { nextId } = await idRes.json();
 
-        const form = document.getElementById("customerForm");
+      const form = document.getElementById("customerForm");
 
-        const customerData = {
-            customerId: nextId,
-            firstName: form.firstName.value.trim(),
-            lastName: form.lastName.value.trim(),
-            address: form.address.value.trim(),
-            phone: form.phone.value.trim(),
-            email: form.email.value.trim(),
-            preferredContact: form.pref.value,
-            senior: form.senior.checked,
-            classBalance: parseInt(form.classBalance.value) || 0
-        };
+      const customerData = {
+          customerId: nextId,
+          firstName: form.firstName.value.trim(),
+          lastName: form.lastName.value.trim(),
+          address: form.address.value.trim(),
+          phone: form.phone.value.trim(),
+          email: form.email.value.trim(),
+          preferredContact: form.pref.value,
+          senior: form.senior.checked,
+          optIn: form.optIn.checked,
+          classBalance: parseInt(form.classBalance.value) || 0,
+          signature: signature
+      };
 
-        const res = await fetch("/api/customer/add", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(customerData)
-        });
+      const res = await fetch("/api/customer/add", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(customerData)
+      });
 
-        const result = await res.json();
+      const result = await res.json();
 
-        // Handle duplicate name response
-        if (res.status === 409) {
-            const proceed = confirm(`A customer named ${customerData.firstName} ${customerData.lastName} already exists. Continue anyway?`);
-            if (!proceed) return;
+      if (res.status === 409) {
+          const proceed = confirm(`A customer named ${customerData.firstName} ${customerData.lastName} already exists. Continue anyway?`);
+          if (!proceed) return;
 
-            // Resend with confirmed flag
-            const confirmedRes = await fetch("/api/customer/add", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...customerData, confirmed: true })
-            });
+          const confirmedRes = await fetch("/api/customer/add", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ...customerData, confirmed: true })
+          });
 
-            const confirmedResult = await confirmedRes.json();
-            if (!confirmedRes.ok) throw new Error(confirmedResult.message || "Failed to add customer");
+          const confirmedResult = await confirmedRes.json();
+          if (!confirmedRes.ok) throw new Error(confirmedResult.message || "Failed to add customer");
 
-            alert(`✅ Customer ${nextId} added successfully!\n\nWelcome to Yoga'Hom! ... Your customer id is ${nextId}.`);
-            form.reset();
-            setFormForSearch();
-            initCustomerDropdown();
-            return;
-        }
+          alert(`✅ Customer ${nextId} added successfully!\n\nWelcome to Yoga'Hom! ... Your customer id is ${nextId}.`);
+          form.reset();
+          setFormForSearch();
+          initCustomerDropdown();
+          return;
+      }
 
-        if (!res.ok) throw new Error(result.message || "Failed to add customer");
+      if (!res.ok) throw new Error(result.message || "Failed to add customer");
 
-        alert(`✅ Customer ${nextId} added successfully!\n\nWelcome to Yoga'Hom! ... Your customer id is ${nextId}.`);
-        form.reset();
-        setFormForSearch();
-        initCustomerDropdown();
+      alert(`✅ Customer ${nextId} added successfully!\n\nWelcome to Yoga'Hom! ... Your customer id is ${nextId}.`);
+      form.reset();
+      setFormForSearch();
+      initCustomerDropdown();
 
-    } catch (err) {
-        alert("❌ Error: " + err.message);
-    }
+  } catch (err) {
+      alert("❌ Error: " + err.message);
+  }
 }
 
 async function deleteCustomer() {
@@ -227,3 +240,101 @@ async function deleteCustomer() {
         initCustomerDropdown();
     }
 }
+
+function initSignatureCanvas() {
+  const canvas = document.getElementById("signatureCanvas");
+  const ctx = canvas.getContext("2d");
+
+  ctx.strokeStyle = "#000000";
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+
+  // Mouse events
+  canvas.addEventListener("mousedown", (e) => {
+    isDrawing = true;
+    hasDrawn = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener("mousemove", (e) => {
+      if (!isDrawing) return;
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+  });
+
+  canvas.addEventListener("mouseup", () => isDrawing = false);
+  canvas.addEventListener("mouseleave", () => isDrawing = false);
+
+  // Touch events for tablet/mobile
+  canvas.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  isDrawing = true;
+  hasDrawn = true;
+  ctx.beginPath();
+  ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+});
+
+  canvas.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      if (!isDrawing) return;
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      ctx.stroke();
+  });
+
+  canvas.addEventListener("touchend", () => isDrawing = false);
+}
+
+function isCanvasBlank() {
+  const canvas = document.getElementById("signatureCanvas");
+  const ctx = canvas.getContext("2d");
+  const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  return pixels.every(pixel => pixel === 0);
+}
+
+document.getElementById("clearSignatureBtn").addEventListener("click", () => {
+  const canvas = document.getElementById("signatureCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  hasDrawn = false;
+});
+
+function showWaiverModal() {
+    const modal = document.getElementById("waiverModal");
+    modal.style.display = "flex";
+    initSignatureCanvas();
+}
+
+function hideWaiverModal() {
+    const modal = document.getElementById("waiverModal");
+    modal.style.display = "none";
+    // Clear signature when closing
+    const canvas = document.getElementById("signatureCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// Cancel button
+document.getElementById("cancelWaiverBtn").addEventListener("click", () => {
+    hideWaiverModal();
+});
+
+document.getElementById("confirmSaveBtn").addEventListener("click", async () => {
+    // Check if signature is blank
+    if (!hasDrawn) {
+        alert("❌ Please sign the waiver before confirming.");
+        return;
+    }
+
+    // Convert signature to base64
+    const canvas = document.getElementById("signatureCanvas");
+    signatureData = canvas.toDataURL("image/png");
+
+    hideWaiverModal();
+    await saveCustomer(signatureData);
+});
+
