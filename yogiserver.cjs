@@ -10,6 +10,7 @@ app.use("/api/class", require("./routes/classRoutes.cjs"));
 app.use("/api/customer", require("./routes/customerRoutes.cjs"));
 app.use("/api/package", require("./routes/packageRoutes.cjs"));
 app.use("/api/checkIn", require("./routes/checkInRoutes.cjs"));
+app.use("/api/reports", require("./routes/reportsRoutes.cjs"));
 
 
 // Start the web server
