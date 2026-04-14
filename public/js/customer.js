@@ -24,8 +24,22 @@ document.getElementById("addBtn").addEventListener("click", async () => {
   setFormForAdd();
 });
 
+// EDIT
+document.getElementById("editBtn").addEventListener("click", () => {
+  const customerId = document.getElementById("customerIdSelect").value;
+  if (!customerId) {
+    alert("Please select a customer to edit.");
+    return;
+  }
+  setFormForEdit();
+});
+
 // SAVE
 document.getElementById("saveBtn").addEventListener("click", async () => {
+  if (formMode === "edit") {
+    await updateCustomer();
+    return;
+  }
   if (formMode !== "add") return;
 
   const form = document.getElementById("customerForm");
@@ -153,6 +167,56 @@ function setFormForAdd() {
     document.getElementById("customerIdTextLabel").style.display = "block";
     document.getElementById("customerIdText").value = "";
     document.getElementById("customerForm").reset();
+}
+
+function setFormForEdit() {
+    formMode = "edit";
+    document.getElementById("customerIdLabel").style.display = "none";
+    document.getElementById("customerIdTextLabel").style.display = "block";
+    document.getElementById("customerIdText").value = document.getElementById("customerIdSelect").value;
+    document.getElementById("customerIdText").readOnly = true;
+}
+
+async function updateCustomer() {
+    try {
+        const customerId = document.getElementById("customerIdText").value;
+        const form = document.getElementById("customerForm");
+
+        if (!form.firstName.value.trim() || !form.lastName.value.trim() ||
+            !form.address.value.trim() || !form.phone.value.trim() || !form.email.value.trim()) {
+            alert("❌ Please fill out all required fields.");
+            return;
+        }
+
+        const customerData = {
+            customerId,
+            firstName: form.firstName.value.trim(),
+            lastName: form.lastName.value.trim(),
+            address: form.address.value.trim(),
+            phone: form.phone.value.trim(),
+            email: form.email.value.trim(),
+            preferredContact: form.pref.value,
+            senior: form.senior.checked,
+            optIn: form.optIn.checked
+        };
+
+        const res = await fetch("/api/customer/updateCustomer", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(customerData)
+        });
+
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.message || "Failed to update customer");
+
+        alert(`✅ Customer ${customerId} updated successfully!`);
+        clearCustomerForm();
+        setFormForSearch();
+        initCustomerDropdown();
+
+    } catch (err) {
+        alert("❌ Error: " + err.message);
+    }
 }
 
 async function saveCustomer(signature) {

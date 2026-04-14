@@ -46,6 +46,31 @@ exports.getNextId = async (req, res) => {
     }
 };
 
+//Update class
+exports.updateClass = async (req, res) => {
+    try {
+        const { classId, className, instructorId, classType, description, daytime } = req.body;
+
+        if (!classId) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const result = await Class.findOneAndUpdate(
+            { classId },
+            { $set: { className, instructorId, classType, description, daytime } },
+            { new: true }
+        );
+
+        if (!result) {
+            return res.status(404).json({ message: "Class not found" });
+        }
+
+        res.json({ message: "Class updated", classId });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
 //Delete class
 exports.deleteClass = async (req, res) => {
     try {

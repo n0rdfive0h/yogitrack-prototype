@@ -24,9 +24,21 @@ document.getElementById("addBtn").addEventListener("click", async () => {
   setFormForAdd();
 });
 
+//EDIT
+document.getElementById("editBtn").addEventListener("click", () => {
+  const instructorId = document.getElementById("instructorIdSelect").value;
+  if (!instructorId) {
+    alert("Please select an instructor to edit.");
+    return;
+  }
+  setFormForEdit();
+});
+
 //SAVE
 document.getElementById("saveBtn").addEventListener("click", async () => {
-  if (formMode === "add") {
+  if (formMode === "edit") {
+    await updateInstructor();
+  } else if (formMode === "add") {
     //Get max ID for instructorId
     const res = await fetch("/api/instructor/getNextId");
     const {nextId } = await res.json();
@@ -153,9 +165,56 @@ function setFormForSearch() {
 
 function setFormForAdd() {
   formMode = "add";
-    //hide the instructor id drop down and label
   document.getElementById("instructorIdLabel").style.display = "none";
   document.getElementById("instructorIdTextLabel").style.display = "block";
   document.getElementById("instructorIdText").value = "";
   document.getElementById("instructorForm").reset();
+}
+
+function setFormForEdit() {
+  formMode = "edit";
+  document.getElementById("instructorIdLabel").style.display = "none";
+  document.getElementById("instructorIdTextLabel").style.display = "block";
+  document.getElementById("instructorIdText").value = document.getElementById("instructorIdSelect").value;
+  document.getElementById("instructorIdText").readOnly = true;
+}
+
+async function updateInstructor() {
+  try {
+    const instructorId = document.getElementById("instructorIdText").value;
+    const form = document.getElementById("instructorForm");
+
+    if (!form.firstName.value.trim() || !form.lastName.value.trim() ||
+        !form.phone.value.trim() || !form.email.value.trim()) {
+      alert("❌ Please fill out all required fields.");
+      return;
+    }
+
+    const instructorData = {
+      instructorId,
+      firstName: form.firstName.value.trim(),
+      lastName: form.lastName.value.trim(),
+      address: form.address.value.trim(),
+      phone: form.phone.value.trim(),
+      email: form.email.value.trim(),
+      preferredContact: form.pref[0].checked ? "phone" : "email"
+    };
+
+    const res = await fetch("/api/instructor/updateInstructor", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(instructorData)
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message || "Failed to update instructor");
+
+    alert(`✅ Instructor ${instructorId} updated successfully!`);
+    clearInstructorForm();
+    setFormForSearch();
+    initInstructorDropdown();
+
+  } catch (err) {
+    alert("❌ Error: " + err.message);
+  }
 }

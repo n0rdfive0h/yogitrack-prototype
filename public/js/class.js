@@ -28,10 +28,22 @@ document.getElementById("addDaytimeBtn").addEventListener("click", async () => {
     addDaytimeEntry();
 });
 
+//EDIT
+document.getElementById("editBtn").addEventListener("click", () => {
+    const classId = document.getElementById("classIdSelect").value;
+    if (!classId) {
+        alert("Please select a class to edit.");
+        return;
+    }
+    setFormForEdit();
+});
+
 //SAVE
 document.getElementById("saveBtn").addEventListener("click", async () => {
     if (formMode === "add") {
         await saveClass();
+    } else if (formMode === "edit") {
+        await updateClass();
     }
 });
 
@@ -263,4 +275,51 @@ function setFormForAdd() {
     const container = document.getElementById("daytimeContainer");
     container.innerHTML = "";
     addDaytimeEntry();
+}
+
+function setFormForEdit() {
+    formMode = "edit";
+    document.getElementById("classIdLabel").style.display = "none";
+    document.getElementById("classIdTextLabel").style.display = "block";
+    document.getElementById("classIdText").value = document.getElementById("classIdSelect").value;
+    document.getElementById("classIdText").readOnly = true;
+}
+
+async function updateClass() {
+    try {
+        const classId = document.getElementById("classIdText").value;
+        const form = document.getElementById("classForm");
+
+        const daytime = collectDaytimeEntries();
+        if (daytime.length === 0) {
+            alert("❌ Please add at least one day and time.");
+            return;
+        }
+
+        const classData = {
+            classId,
+            className: form.className.value.trim(),
+            instructorId: form.instructorId.value,
+            classType: form.classType.value,
+            description: form.description.value.trim(),
+            daytime
+        };
+
+        const res = await fetch("/api/class/updateClass", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(classData)
+        });
+
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.message || "Failed to update class");
+
+        alert(`✅ Class ${classId} updated successfully!`);
+        clearClassForm();
+        setFormForSearch();
+        initClassDropdown();
+
+    } catch (err) {
+        alert("❌ Error: " + err.message);
+    }
 }

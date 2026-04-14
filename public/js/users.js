@@ -27,10 +27,22 @@ document.getElementById("addBtn").addEventListener("click", () => {
     setFormForAdd();
 });
 
+// EDIT
+document.getElementById("editBtn").addEventListener("click", () => {
+    const userId = document.getElementById("userIdSelect").value;
+    if (!userId) {
+        alert("Please select a user to edit.");
+        return;
+    }
+    setFormForEdit();
+});
+
 // SAVE
 document.getElementById("saveBtn").addEventListener("click", async () => {
     if (formMode === "add") {
         await saveUser();
+    } else if (formMode === "edit") {
+        await updateUser();
     }
 });
 
@@ -173,4 +185,55 @@ function setFormForAdd() {
     document.getElementById("userIdTextLabel").style.display = "block";
     document.getElementById("userIdText").value = "";
     document.getElementById("userForm").reset();
+}
+
+function setFormForEdit() {
+    formMode = "edit";
+    document.getElementById("userIdLabel").style.display = "none";
+    document.getElementById("userIdTextLabel").style.display = "block";
+    document.getElementById("userIdText").value = document.getElementById("userIdSelect").value;
+    document.getElementById("userIdText").readOnly = true;
+}
+
+async function updateUser() {
+    try {
+        const form = document.getElementById("userForm");
+        const userId = document.getElementById("userIdText").value;
+
+        const userData = {
+            userId,
+            firstName: form.firstName.value.trim(),
+            lastName: form.lastName.value.trim(),
+            email: form.email.value.trim(),
+            role: form.role.value
+        };
+
+        if (!userData.firstName || !userData.lastName || !userData.email || !userData.role) {
+            alert("❌ Please fill out all required fields.");
+            return;
+        }
+
+        const res = await fetch("/api/auth/updateCredentials", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(userData)
+        });
+
+        const result = await res.json();
+
+        if (res.status === 409) {
+            alert("❌ " + result.message);
+            return;
+        }
+
+        if (!res.ok) throw new Error(result.message || "Failed to update user");
+
+        alert(`✅ User ${userId} updated successfully!`);
+        clearUserForm();
+        setFormForSearch();
+        initUserDropdown();
+
+    } catch (err) {
+        alert("❌ Error: " + err.message);
+    }
 }

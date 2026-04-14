@@ -30,10 +30,22 @@ document.getElementById("addBtn").addEventListener("click", async () => {
     setFormForAdd();
 });
 
+//EDIT
+document.getElementById("editBtn").addEventListener("click", () => {
+    const packageId = document.getElementById("packageIdSelect").value;
+    if (!packageId) {
+        alert("Please select a package to edit.");
+        return;
+    }
+    setFormForEdit();
+});
+
 //SAVE
 document.getElementById("saveBtn").addEventListener("click", async () => {
     if (formMode === "add") {
         await savePackage();
+    } else if (formMode === "edit") {
+        await updatePackage();
     }
 });
 
@@ -213,6 +225,62 @@ function setFormForAdd() {
     document.getElementById("packageIdTextLabel").style.display = "block";
     document.getElementById("packageIdText").value = "";
     document.getElementById("packageForm").reset();
+}
+
+function setFormForEdit() {
+    formMode = "edit";
+    document.getElementById("packageIdLabel").style.display = "none";
+    document.getElementById("packageIdTextLabel").style.display = "block";
+    document.getElementById("packageIdText").value = document.getElementById("packageIdSelect").value;
+    document.getElementById("packageIdText").readOnly = true;
+}
+
+async function updatePackage() {
+    try {
+        const form = document.getElementById("packageForm");
+        const packageId = document.getElementById("packageIdText").value;
+
+        if (!form.packageName.value.trim() || !form.packageCategory.value ||
+            !form.classNum.value || !form.classType.value ||
+            !form.startDate.value || !form.endDate.value || !form.price.value) {
+            alert("❌ Please fill out all required fields.");
+            return;
+        }
+
+        const price = parseFloat(form.price.value);
+        if (isNaN(price) || price <= 0) {
+            alert("❌ Price must be a positive number.");
+            return;
+        }
+
+        const packageData = {
+            packageId,
+            packageName: form.packageName.value.trim(),
+            packageCategory: form.packageCategory.value,
+            classNum: form.classNum.value,
+            classType: form.classType.value,
+            startDate: form.startDate.value,
+            endDate: form.endDate.value,
+            price
+        };
+
+        const res = await fetch("/api/package/updatePackage", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(packageData)
+        });
+
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.message || "Failed to update package");
+
+        alert(`✅ Package ${packageId} updated successfully!`);
+        clearPackageForm();
+        setFormForSearch();
+        initPackageDropdown();
+
+    } catch (err) {
+        alert("❌ Error: " + err.message);
+    }
 }
 
 

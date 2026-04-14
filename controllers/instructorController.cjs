@@ -97,6 +97,30 @@ exports.getNextId = async (req, res) => {
   res.json({ nextId });
 };
 
+exports.updateInstructor = async (req, res) => {
+    try {
+        const { instructorId, firstName, lastName, email, phone, address, preferredContact } = req.body;
+
+        if (!instructorId) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const result = await Instructor.findOneAndUpdate(
+            { instructorId },
+            { $set: { firstName, lastName, email, phone, address, preferredContact } },
+            { new: true }
+        );
+
+        if (!result) {
+            return res.status(404).json({ message: "Instructor not found" });
+        }
+
+        res.json({ message: "Instructor updated", instructorId });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
 exports.deleteInstructor = async (req, res) => {
   try {
      const {instructorId} = req.query;

@@ -128,6 +128,38 @@ exports.deleteCredentials = async (req, res) => {
     }
 };
 
+exports.updateCredentials = async (req, res) => {
+    try {
+        const { userId, firstName, lastName, email, role } = req.body;
+
+        if (!userId) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        // If email is changing, ensure it isn't already used by another account
+        if (email) {
+            const existing = await Credentials.findOne({ email, userId: { $ne: userId } });
+            if (existing) {
+                return res.status(409).json({ message: "Email is already in use by another account" });
+            }
+        }
+
+        const result = await Credentials.findOneAndUpdate(
+            { userId },
+            { $set: { firstName, lastName, email, role } },
+            { new: true, projection: { password: 0 } }
+        );
+
+        if (!result) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json({ message: "User updated", userId });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
 exports.getUserIds = async (req, res) => {
     try {
         const users = await Credentials.find(

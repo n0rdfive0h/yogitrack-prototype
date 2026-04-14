@@ -21,7 +21,7 @@ async function checkSession() {
 function applyRoleRestrictions(role) {
     if (role === "instructor") {
         // Hide add, save, delete buttons
-        const restrictedButtons = ["addBtn", "saveBtn", "deleteBtn", "uploadCSVBtn"];
+        const restrictedButtons = ["deleteBtn", "uploadCSVBtn"];
         restrictedButtons.forEach((btnId) => {
             const btn = document.getElementById(btnId);
             if (btn) btn.style.display = "none";

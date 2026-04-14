@@ -53,6 +53,31 @@ exports.getNextId = async (req, res) => {
     }
 };
 
+//Update customer
+exports.updateCustomer = async (req, res) => {
+    try {
+        const { customerId, firstName, lastName, email, phone, address, preferredContact, senior, optIn } = req.body;
+
+        if (!customerId) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const result = await Customer.findOneAndUpdate(
+            { customerId },
+            { $set: { firstName, lastName, email, phone, address, preferredContact, senior, optIn } },
+            { new: true }
+        );
+
+        if (!result) {
+            return res.status(404).json({ message: "Customer not found" });
+        }
+
+        res.json({ message: "Customer updated", customerId });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
 //Delete customer
 exports.deleteCustomer = async (req, res) => {
     try {

@@ -48,6 +48,30 @@ exports.getNextPackageId = async (req, res) => {
     }
 };
 
+exports.updatePackage = async (req, res) => {
+    try {
+        const { packageId, packageName, packageCategory, classNum, classType, startDate, endDate, price } = req.body;
+
+        if (!packageId) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const result = await PackageModel.findOneAndUpdate(
+            { packageId },
+            { $set: { packageName, packageCategory, classNum, classType, startDate, endDate, price } },
+            { new: true }
+        );
+
+        if (!result) {
+            return res.status(404).json({ message: "Package not found" });
+        }
+
+        res.json({ message: "Package updated", packageId });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
 exports.deletePackage = async (req, res) => {
     try {
         const { packageId } = req.query;
