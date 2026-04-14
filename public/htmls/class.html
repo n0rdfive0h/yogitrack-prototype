@@ -24,55 +24,53 @@
             </nav>
         </aside>
 
-            <!-- Class Schedule form -->
-            <main class="layout--center">
-                <form class="card" id="classForm">
-                    <h2>Class Schedule</h2>
+        <!-- Class Schedule form -->
+        <main class="layout--center">
+            <form class="card" id="classForm">
+                <h2>Class Schedule</h2>
 
-            <!-- Class ID-->
-            <label id = "classIdLabel" for="classID">Class ID
-                <select name="classId" id="classIdSelect" class="form-input" required>
-                    <option value=""> -- Select Class Id --</option>
-                    <!-- Options will be populated by JavaScript-->
-                </select>
-            </label>
+                <!-- Class ID dropdown (search mode) -->
+                <label id="classIdLabel" for="classIdSelect">Class ID
+                    <select name="classId" id="classIdSelect" class="form-input" required>
+                        <option value=""> -- Select Class Id --</option>
+                    </select>
+                </label>
 
-                <!-- Toggle with ClassIdLabel -->
-            <label id="classIdTextLabel" style="display: none;">Class ID
-                <input id="classIdText" type="text" name="classId" readonly/>
-            </label>
+                <!-- Class ID text (add/edit mode) -->
+                <label id="classIdTextLabel" style="display: none;">Class ID
+                    <input id="classIdText" type="text" name="classId" readonly/>
+                </label>
 
-            <!-- Class Name -->
-            <label>Class Name
-                <input type="text" name="className" class="form-input" required>
-            </label>
+                <!-- Class Name (auto-generated, read-only) -->
+                <label>Class Name
+                    <input type="text" id="classNameDisplay" class="form-input" readonly
+                           placeholder="Auto-Filled by: Day Start time - End Time"/>
+                </label>
 
-            <!-- Instructor -->
-            <label>Instructor
-                <select name="instructorId" id="instructorSelect" class="form-input" required>
-                    <option value=""> -- Select Instructor --</option>
-                    <!-- Options will be populated by JavaScript-->
-                </select>
-            </label>
+                <!-- Instructor -->
+                <label>Instructor
+                    <select name="instructorId" id="instructorSelect" class="form-input" required>
+                        <option value=""> -- Select Instructor --</option>
+                    </select>
+                </label>
 
-            <!-- Class Type -->
-            <label>Class Type
-                <select name="classType" class="form-input" required>
-                    <option value="General">General</option>
-                    <option value="Special">Special</option>
-                </select>
-            </label>
-            
-            <!-- Description -->
-            <label>Description
-                <textarea name="description" rows="3" class="form-input"></textarea>
-            </label>
+                <!-- Class Type -->
+                <label>Class Type
+                    <select name="classType" class="form-input" required>
+                        <option value="General">General</option>
+                        <option value="Special">Special</option>
+                    </select>
+                </label>
 
-            <!-- Day/Time Entries -->
-            <div id="daytimeContainer">
-                <div class="daytime-entry" style="display: flex; gap: 10px; align-items: center;">
+                <!-- Description -->
+                <label>Description
+                    <textarea name="description" rows="3" class="form-input"></textarea>
+                </label>
+
+                <!-- Single Day / Time / Duration row -->
+                <div style="display: flex; gap: 10px; align-items: center;">
                     <label>Day
-                        <select name="day" class="form-input" style="width: 150px">
+                        <select name="day" id="daySelect" class="form-input" style="width: 150px;">
                             <option value="Mon">Monday</option>
                             <option value="Tue">Tuesday</option>
                             <option value="Wed">Wednesday</option>
@@ -83,24 +81,27 @@
                         </select>
                     </label>
                     <label>Time
-                        <input type="time" name="time" class="form-input" style="width: 120px"/>
+                        <input type="time" name="time" id="timeInput" class="form-input" style="width: 120px;"/>
                     </label>
                     <label>Duration (mins)
-                        <input type="number" name="duration" class="form-input" style="width: 80px"/>
+                        <input type="number" name="duration" id="durationInput" class="form-input" style="width: 80px;"/>
                     </label>
                 </div>
-            </div>
-            <button type="button" id="addDaytimeBtn">+ Add Another Day</button>
 
-            <!-- Action buttons -->
-            <div class="btn-row">
-                <button type="button" class="btn" id="searchBtn">Search</button>
-                <button type="button" class="btn btn--primary" id="addBtn">Add New</button>
-                <button type="button" class="btn btn--primary" id="editBtn">Edit</button>
-                <button type="button" class="btn" id="saveBtn">Save</button>
-                <button type="button" class="btn btn--danger" id="deleteBtn">Delete</button>
-                <a href="dashboard.html" class="btn">Exit</a>
-            </div>
+                <!-- Deactivated -->
+                <label>Deactivated
+                    <input type="checkbox" name="deactivated" id="deactivated">
+                </label>
+
+                <!-- Action buttons -->
+                <div class="btn-row">
+                    <button type="button" class="btn" id="searchBtn">Search</button>
+                    <button type="button" class="btn btn--primary" id="addBtn">Add New</button>
+                    <button type="button" class="btn btn--primary" id="editBtn">Edit</button>
+                    <button type="button" class="btn" id="saveBtn">Save</button>
+                    <button type="button" class="btn btn--danger" id="deleteBtn">Delete</button>
+                    <a href="dashboard.html" class="btn">Exit</a>
+                </div>
 
             </form>
         </main>

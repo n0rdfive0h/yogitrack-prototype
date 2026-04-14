@@ -1,34 +1,36 @@
-let formMode = "search"; // Tracks the current mode of the form
+let formMode = "search";
+let currentUserRole = null;
 
-// Fetch all class IDs and populate the dropdown
+const DAY_NAMES = {
+    Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday",
+    Thu: "Thursday", Fri: "Friday", Sat: "Saturday", Sun: "Sunday"
+};
+
 document.addEventListener("DOMContentLoaded", async () => {
     const user = await checkSession();
     if (!user) return;
+    currentUserRole = user.role;
     applyRoleRestrictions(user.role);
     setFormForSearch();
     initClassDropdown();
     addClassDropdownListener();
     initInstructorDropdown();
+    addDaytimePreviewListeners();
 });
 
-//SEARCH
+// SEARCH
 document.getElementById("searchBtn").addEventListener("click", async () => {
     clearClassForm();
     setFormForSearch();
     initClassDropdown();
 });
 
-//ADD
+// ADD
 document.getElementById("addBtn").addEventListener("click", async () => {
     setFormForAdd();
 });
 
-//ADD ANOTHER DAY 
-document.getElementById("addDaytimeBtn").addEventListener("click", async () => {
-    addDaytimeEntry();
-});
-
-//EDIT
+// EDIT
 document.getElementById("editBtn").addEventListener("click", () => {
     const classId = document.getElementById("classIdSelect").value;
     if (!classId) {
@@ -38,7 +40,7 @@ document.getElementById("editBtn").addEventListener("click", () => {
     setFormForEdit();
 });
 
-//SAVE
+// SAVE
 document.getElementById("saveBtn").addEventListener("click", async () => {
     if (formMode === "add") {
         await saveClass();
@@ -47,12 +49,12 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     }
 });
 
-//DELETE
+// DELETE
 document.getElementById("deleteBtn").addEventListener("click", async () => {
     await deleteClass();
 });
 
-//Populate class dropdown
+// Populate class dropdown (shows DEACTIVATED label)
 async function initClassDropdown() {
     const select = document.getElementById("classIdSelect");
     select.innerHTML = "<option value=''>-- Select Class Id --</option>";
@@ -62,7 +64,8 @@ async function initClassDropdown() {
         classIds.forEach((c) => {
             const option = document.createElement("option");
             option.value = c.classId;
-            option.textContent = `${c.classId}: ${c.className}`;
+            const label = c.deactivated ? " (DEACTIVATED)" : "";
+            option.textContent = `${c.classId}: ${c.className}${label}`;
             select.appendChild(option);
         });
     } catch (err) {
@@ -70,7 +73,7 @@ async function initClassDropdown() {
     }
 }
 
-//Populate instructor dropdown
+// Populate instructor dropdown
 async function initInstructorDropdown() {
     const select = document.getElementById("instructorSelect");
     select.innerHTML = "<option value=''>-- Select Instructor --</option>";
@@ -84,76 +87,61 @@ async function initInstructorDropdown() {
             select.appendChild(option);
         });
     } catch (err) {
-        console.error("Failed to load instructor IDs: ", err);
+        console.error("Failed to load instructor IDs:", err);
     }
 }
 
-// Add a new daytime entry row
-function addDaytimeEntry() {
-    const container = document.getElementById("daytimeContainer");
-    const entry = document.createElement("div");
-    entry.className = "daytime-entry";
-    entry.style = "display: flex; gap: 10px; align-items: center;";
-    entry.innerHTML = `
-        <label>Day
-            <select name="day" class="form-input" style="width: 150px;">
-                <option value="Mon">Monday</option>
-                <option value="Tue">Tuesday</option>
-                <option value="Wed">Wednesday</option>
-                <option value="Thu">Thursday</option>
-                <option value="Fri">Friday</option>
-                <option value="Sat">Saturday</option>
-                <option value="Sun">Sunday</option>
-            </select>
-        </label>
-        <label>Time
-            <input type="time" name="time" class="form-input" style="width: 120px;"/>
-        </label>
-        <label>Duration (mins)
-            <input type="number" name="duration" class="form-input" style="width: 60px;"/>
-        </label>
-        <button type="button" onclick="this.parentElement.remove()">Remove</button>
-    `;
-    container.appendChild(entry);
+// Live-preview the auto-generated class name as day/time/duration change
+function addDaytimePreviewListeners() {
+    ["daySelect", "timeInput", "durationInput"].forEach((id) => {
+        document.getElementById(id).addEventListener("change", updateClassNamePreview);
+        document.getElementById(id).addEventListener("input", updateClassNamePreview);
+    });
 }
 
-// Collect all daytime entries from the form
-function collectDaytimeEntries() {
-    const entries = [];
-    const daytimeEntries = document.querySelectorAll(".daytime-entry");
-    daytimeEntries.forEach((entry) => {
-        const day = entry.querySelector("[name='day']").value;
-        const time = entry.querySelector("[name='time']").value;
-        const duration = parseInt(entry.querySelector("[name='duration']").value);
-        if (day && time && duration) {
-            entries.push({ day, time, duration });
-        }
-    });
-    return entries;
+function updateClassNamePreview() {
+    const day = document.getElementById("daySelect").value;
+    const time = document.getElementById("timeInput").value;
+    const duration = parseInt(document.getElementById("durationInput").value);
+    if (day && time && duration) {
+        document.getElementById("classNameDisplay").value = generateClassName(day, time, duration);
+    } else {
+        document.getElementById("classNameDisplay").value = "";
+    }
+}
+
+function generateClassName(day, time, duration) {
+    const [hours, mins] = time.split(':').map(Number);
+    const totalEndMins = hours * 60 + mins + duration;
+    const endHours = Math.floor(totalEndMins / 60) % 24;
+    const endMins = totalEndMins % 60;
+    const endTime = `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`;
+    return `${DAY_NAMES[day] || day} ${time} - ${endTime}`;
 }
 
 async function saveClass() {
     try {
-        // Get next class ID
         const idRes = await fetch("/api/class/getNextId");
         const { nextId } = await idRes.json();
 
         const form = document.getElementById("classForm");
+        const day = form.day.value;
+        const time = form.time.value;
+        const duration = parseInt(form.duration.value);
 
-        // Collect daytime entries
-        const daytime = collectDaytimeEntries();
-        if (daytime.length === 0) {
-            alert("❌ Please add at least one day and time.");
+        if (!day || !time || !duration) {
+            alert("Please fill in day, time, and duration.");
             return;
         }
 
         const classData = {
             classId: nextId,
-            className: form.className.value.trim(),
             instructorId: form.instructorId.value,
             classType: form.classType.value,
             description: form.description.value.trim(),
-            daytime: daytime
+            day,
+            time,
+            duration
         };
 
         const res = await fetch("/api/class/add", {
@@ -164,24 +152,21 @@ async function saveClass() {
 
         const result = await res.json();
 
-        // Handle conflict response
         if (res.status === 409) {
-            let conflictMessage = "❌ Scheduling conflict detected:\n";
-            result.conflicts.forEach((c) => {
-                conflictMessage += `\n- ${c.day} at ${c.time} conflicts with "${c.conflictsWith}" (${c.existingTime}, ${c.existingDuration} mins)`;
-            });
-            alert(conflictMessage);
+            const c = result.conflict;
+            alert(`Scheduling conflict detected:\n- ${c.day} at ${c.time} conflicts with "${c.confWith}" (${c.existingTime}, ${c.existingDuration} mins)`);
             return;
         }
 
         if (!res.ok) throw new Error(result.message || "Failed to add class");
 
-        alert(`✅ Class ${nextId} scheduled successfully!`);
+        alert(`Class ${nextId} scheduled successfully!`);
         form.reset();
+        document.getElementById("classNameDisplay").value = "";
         initClassDropdown();
 
     } catch (err) {
-        alert("❌ Error: " + err.message);
+        alert("Error: " + err.message);
     }
 }
 
@@ -199,7 +184,7 @@ async function deleteClass() {
     });
 
     if (!response.ok) {
-        throw new Error("Class delete failed");
+        alert("Class delete failed");
     } else {
         alert(`Class ${classId} successfully deleted`);
         clearClassForm();
@@ -224,23 +209,22 @@ async function addClassDropdownListener() {
                 return;
             }
 
-            // Fill form with data
-            form.className.value = data.className || "";
+            if (data.deactivated && currentUserRole !== "manager") {
+                alert("This class is deactivated and cannot be accessed.");
+                select.value = "";
+                form.reset();
+                document.getElementById("classNameDisplay").value = "";
+                return;
+            }
+
             form.instructorId.value = data.instructorId || "";
             form.classType.value = data.classType || "";
             form.description.value = data.description || "";
-
-            // Clear and repopulate daytime entries
-            const container = document.getElementById("daytimeContainer");
-            container.innerHTML = "";
-            data.daytime.forEach((slot) => {
-                addDaytimeEntry();
-                const entries = container.querySelectorAll(".daytime-entry");
-                const lastEntry = entries[entries.length - 1];
-                lastEntry.querySelector("[name='day']").value = slot.day;
-                lastEntry.querySelector("[name='time']").value = slot.time;
-                lastEntry.querySelector("[name='duration']").value = slot.duration;
-            });
+            document.getElementById("daySelect").value = data.day || "Mon";
+            document.getElementById("timeInput").value = data.time || "";
+            document.getElementById("durationInput").value = data.duration || "";
+            document.getElementById("classNameDisplay").value = data.className || "";
+            document.getElementById("deactivated").checked = data.deactivated || false;
 
         } catch (err) {
             alert(`Error loading class: ${err.message}`);
@@ -251,9 +235,7 @@ async function addClassDropdownListener() {
 function clearClassForm() {
     document.getElementById("classForm").reset();
     document.getElementById("classIdSelect").innerHTML = "";
-    const container = document.getElementById("daytimeContainer");
-    container.innerHTML = "";
-    addDaytimeEntry(); // Add one blank entry back
+    document.getElementById("classNameDisplay").value = "";
 }
 
 function setFormForSearch() {
@@ -263,6 +245,7 @@ function setFormForSearch() {
     document.getElementById("classIdText").value = "";
     document.getElementById("classIdText").style.display = "none";
     document.getElementById("classForm").reset();
+    document.getElementById("classNameDisplay").value = "";
 }
 
 function setFormForAdd() {
@@ -271,10 +254,7 @@ function setFormForAdd() {
     document.getElementById("classIdTextLabel").style.display = "block";
     document.getElementById("classIdText").value = "";
     document.getElementById("classForm").reset();
-    // Reset daytime container to one blank entry
-    const container = document.getElementById("daytimeContainer");
-    container.innerHTML = "";
-    addDaytimeEntry();
+    document.getElementById("classNameDisplay").value = "";
 }
 
 function setFormForEdit() {
@@ -290,19 +270,24 @@ async function updateClass() {
         const classId = document.getElementById("classIdText").value;
         const form = document.getElementById("classForm");
 
-        const daytime = collectDaytimeEntries();
-        if (daytime.length === 0) {
-            alert("❌ Please add at least one day and time.");
+        const day = form.day.value;
+        const time = form.time.value;
+        const duration = parseInt(form.duration.value);
+
+        if (!day || !time || !duration) {
+            alert("Please fill in day, time, and duration.");
             return;
         }
 
         const classData = {
             classId,
-            className: form.className.value.trim(),
             instructorId: form.instructorId.value,
             classType: form.classType.value,
             description: form.description.value.trim(),
-            daytime
+            day,
+            time,
+            duration,
+            deactivated: form.deactivated.checked
         };
 
         const res = await fetch("/api/class/updateClass", {
@@ -314,12 +299,12 @@ async function updateClass() {
         const result = await res.json();
         if (!res.ok) throw new Error(result.message || "Failed to update class");
 
-        alert(`✅ Class ${classId} updated successfully!`);
+        alert(`Class ${classId} updated successfully!`);
         clearClassForm();
         setFormForSearch();
         initClassDropdown();
 
     } catch (err) {
-        alert("❌ Error: " + err.message);
+        alert("Error: " + err.message);
     }
 }

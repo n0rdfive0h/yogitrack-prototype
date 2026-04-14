@@ -1,4 +1,5 @@
 let formMode = "search";
+let currentUserRole = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
     const user = await checkSession();
@@ -10,6 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
+    currentUserRole = user.role;
     setFormForSearch();
     initUserDropdown();
     addUserDropdownListener();
@@ -60,7 +62,8 @@ async function initUserDropdown() {
         userIds.forEach((u) => {
             const option = document.createElement("option");
             option.value = u.userId;
-            option.textContent = `${u.userId}: ${u.firstName} ${u.lastName}`;
+            const label = u.deactivated ? " (DEACTIVATED)" : "";
+            option.textContent = `${u.userId}: ${u.firstName} ${u.lastName}${label}`;
             select.appendChild(option);
         });
     } catch (err) {
@@ -88,6 +91,7 @@ async function addUserDropdownListener() {
             form.lastName.value = data.lastName || "";
             form.email.value = data.email || "";
             form.role.value = data.role || "";
+            document.getElementById("deactivated").checked = data.deactivated || false;
             // Password is intentionally not populated for security
 
         } catch (err) {
@@ -205,7 +209,8 @@ async function updateUser() {
             firstName: form.firstName.value.trim(),
             lastName: form.lastName.value.trim(),
             email: form.email.value.trim(),
-            role: form.role.value
+            role: form.role.value,
+            deactivated: document.getElementById("deactivated").checked
         };
 
         if (!userData.firstName || !userData.lastName || !userData.email || !userData.role) {

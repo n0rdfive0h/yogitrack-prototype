@@ -2,10 +2,12 @@ let formMode = "search"; // Tracks the current mode of the form
 let isDrawing = false;
 let signatureData = null;
 let hasDrawn = false;
+let currentUserRole = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await checkSession();
   if (!user) return;
+  currentUserRole = user.role;
   applyRoleRestrictions(user.role);
   setFormForSearch();
   initCustomerDropdown();
@@ -101,7 +103,8 @@ async function initCustomerDropdown() {
     customerIds.forEach((cust) => {
       const option = document.createElement("option");
       option.value = cust.customerId;
-      option.textContent = `${cust.customerId}: ${cust.firstName} ${cust.lastName}`;
+      const label = cust.deactivated ? " (DEACTIVATED)" : "";
+      option.textContent = `${cust.customerId}: ${cust.firstName} ${cust.lastName}${label}`;
       select.appendChild(option);
     });
   } catch (err) {
@@ -127,6 +130,13 @@ async function addCustomerDropdownListener() {
         return;
       }
 
+      if (data.deactivated && currentUserRole !== "manager") {
+        alert("This customer is deactivated and cannot be accessed.");
+        select.value = "";
+        form.reset();
+        return;
+      }
+
       // Fill form with data
       form.firstName.value = data.firstName || "";
       form.lastName.value = data.lastName || "";
@@ -141,6 +151,7 @@ async function addCustomerDropdownListener() {
       }
 
       document.getElementById("classBalance").value = data.classBalance ?? 0;
+      document.getElementById("deactivated").checked = data.deactivated || false;
     } catch (err) {
       alert(`Error searching customer: ${customerId} - ${err.message}`);
     }
@@ -197,7 +208,8 @@ async function updateCustomer() {
             email: form.email.value.trim(),
             preferredContact: form.pref.value,
             senior: form.senior.checked,
-            optIn: form.optIn.checked
+            optIn: form.optIn.checked,
+            deactivated: form.deactivated.checked
         };
 
         const res = await fetch("/api/customer/updateCustomer", {

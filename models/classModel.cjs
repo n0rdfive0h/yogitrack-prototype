@@ -7,13 +7,10 @@ const classModel = new mongoose.Schema({
     instructorId: String,
     classType: String,
     description: String,
-    daytime: [
-        {
-            day: String,
-            time: String,
-            duration: Number
-        }
-    ]
+    day: String,
+    time: String,
+    duration: Number,
+    deactivated: { type: Boolean, default: false }
 }, { collection: 'class' });
 
 module.exports = mongoose.model('Class', classModel);

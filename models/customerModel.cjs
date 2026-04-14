@@ -12,7 +12,8 @@ const customerModel = new mongoose.Schema({
     preferredContact: String,
     classBalance: Number,
     signature: String,
-    optIn: Boolean
+    optIn: Boolean,
+    deactivated: { type: Boolean, default: false }
 }, {collection: "customer"});
 
 module.exports = mongoose.model("Customer", customerModel);

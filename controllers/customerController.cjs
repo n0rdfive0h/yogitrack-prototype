@@ -12,7 +12,7 @@ exports.getCustomerIds = async (req, res) => {
     try {
         const customers = await Customer.find(
             {},
-            { customerId: 1, firstName: 1, lastName: 1, _id: 0 }
+            { customerId: 1, firstName: 1, lastName: 1, deactivated: 1, _id: 0 }
         ).sort();
         res.json(customers);
     } catch (e) {
@@ -56,7 +56,7 @@ exports.getNextId = async (req, res) => {
 //Update customer
 exports.updateCustomer = async (req, res) => {
     try {
-        const { customerId, firstName, lastName, email, phone, address, preferredContact, senior, optIn } = req.body;
+        const { customerId, firstName, lastName, email, phone, address, preferredContact, senior, optIn, deactivated } = req.body;
 
         if (!customerId) {
             return res.status(400).json({ message: "Missing required fields" });
@@ -64,7 +64,7 @@ exports.updateCustomer = async (req, res) => {
 
         const result = await Customer.findOneAndUpdate(
             { customerId },
-            { $set: { firstName, lastName, email, phone, address, preferredContact, senior, optIn } },
+            { $set: { firstName, lastName, email, phone, address, preferredContact, senior, optIn, deactivated } },
             { new: true }
         );
 

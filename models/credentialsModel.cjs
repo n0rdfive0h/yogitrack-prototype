@@ -7,7 +7,8 @@ const credentialsModel = new mongoose.Schema({
     lastName: String,
     email: String,
     password: String,
-    role: String
+    role: String,
+    deactivated: { type: Boolean, default: false }
 }, {collection: "credentials"});
 
 module.exports = mongoose.model("Credentials", credentialsModel);

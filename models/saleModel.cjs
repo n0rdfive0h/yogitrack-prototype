@@ -8,7 +8,8 @@ const saleModel = new mongoose.Schema({
         packageId: String,
         startDate: String,
         endDate: String,
-        amountPaid: Number
+        amountPaid: Number,
+        remainingClasses: Number
     },
     paymentMode: String,
     dateTime: String

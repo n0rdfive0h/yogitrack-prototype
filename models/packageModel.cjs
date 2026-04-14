@@ -9,7 +9,8 @@ const packageModel = new mongoose.Schema({
     classType: String,
     startDate: String,
     endDate: String,
-    price: Number
+    price: Number,
+    deactivated: { type: Boolean, default: false }
 }, {collection: "package"});
 
 module.exports = mongoose.model("Package", packageModel);

@@ -130,7 +130,7 @@ exports.deleteCredentials = async (req, res) => {
 
 exports.updateCredentials = async (req, res) => {
     try {
-        const { userId, firstName, lastName, email, role } = req.body;
+        const { userId, firstName, lastName, email, role, deactivated } = req.body;
 
         if (!userId) {
             return res.status(400).json({ message: "Missing required fields" });
@@ -146,7 +146,7 @@ exports.updateCredentials = async (req, res) => {
 
         const result = await Credentials.findOneAndUpdate(
             { userId },
-            { $set: { firstName, lastName, email, role } },
+            { $set: { firstName, lastName, email, role, deactivated } },
             { new: true, projection: { password: 0 } }
         );
 
@@ -164,7 +164,7 @@ exports.getUserIds = async (req, res) => {
     try {
         const users = await Credentials.find(
             {},
-            { userId: 1, firstName: 1, lastName: 1, _id: 0 }
+            { userId: 1, firstName: 1, lastName: 1, deactivated: 1, _id: 0 }
         ).sort({ userId: 1 });
         res.json(users);
     } catch (e) {

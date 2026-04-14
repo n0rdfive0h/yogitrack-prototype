@@ -1,12 +1,14 @@
 let formMode = "search"; // Tracks the current mode of the form
 let saleFormMode = "search";
+let currentUserRole = null;
 
 
-// -- PACKAGE FORM FUNCTIONS -- 
+// -- PACKAGE FORM FUNCTIONS --
 // Fetch all class IDs and populate the dropdown
 document.addEventListener("DOMContentLoaded", async () => {
     const user = await checkSession();
     if (!user) return;
+    currentUserRole = user.role;
     applyRoleRestrictions(user.role);
     setFormForSearch();
     setFormForSaleSearch();
@@ -64,7 +66,8 @@ async function initPackageDropdown() {
         packageIds.forEach((p) => {
             const option = document.createElement("option");
             option.value = p.packageId;
-            option.textContent = `${p.packageId}: ${p.packageName}`;
+            const label = p.deactivated ? " (DEACTIVATED)" : "";
+            option.textContent = `${p.packageId}: ${p.packageName}${label}`;
             select.appendChild(option);
         });
     } catch (err) {
@@ -162,6 +165,13 @@ async function addPackageDropdownListener() {
                 return;
             }
 
+            if (data.deactivated && currentUserRole !== "manager") {
+                alert("This package is deactivated and cannot be accessed.");
+                select.value = "";
+                form.reset();
+                return;
+            }
+
             // Fill form with data
             form.packageName.value = data.packageName || "";
             form.packageCategory.value = data.packageCategory || "";
@@ -170,6 +180,7 @@ async function addPackageDropdownListener() {
             form.startDate.value = data.startDate || "";
             form.endDate.value = data.endDate || "";
             form.price.value = data.price || "";
+            document.getElementById("deactivated").checked = data.deactivated || false;
         
 
         } catch (err) {
@@ -261,7 +272,8 @@ async function updatePackage() {
             classType: form.classType.value,
             startDate: form.startDate.value,
             endDate: form.endDate.value,
-            price
+            price,
+            deactivated: document.getElementById("deactivated").checked
         };
 
         const res = await fetch("/api/package/updatePackage", {

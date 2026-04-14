@@ -6,7 +6,7 @@ exports.getPackageIds = async (req, res) => {
     try {
         const packages = await PackageModel.find(
             {},
-            { packageId: 1, packageName: 1, _id: 0 }
+            { packageId: 1, packageName: 1, deactivated: 1, _id: 0 }
         ).sort();
         res.json(packages);
     } catch (e) {
@@ -50,7 +50,7 @@ exports.getNextPackageId = async (req, res) => {
 
 exports.updatePackage = async (req, res) => {
     try {
-        const { packageId, packageName, packageCategory, classNum, classType, startDate, endDate, price } = req.body;
+        const { packageId, packageName, packageCategory, classNum, classType, startDate, endDate, price, deactivated } = req.body;
 
         if (!packageId) {
             return res.status(400).json({ message: "Missing required fields" });
@@ -58,7 +58,7 @@ exports.updatePackage = async (req, res) => {
 
         const result = await PackageModel.findOneAndUpdate(
             { packageId },
-            { $set: { packageName, packageCategory, classNum, classType, startDate, endDate, price } },
+            { $set: { packageName, packageCategory, classNum, classType, startDate, endDate, price, deactivated } },
             { new: true }
         );
 
@@ -192,17 +192,20 @@ exports.addSale = async (req, res) => {
             return res.status(404).json({ message: "Package not found" });
         }
     
+        const classNum = packageData.classNum === "Unlimited" ? 9999 : parseInt(packageData.classNum);
+
         const newSale = new Sale({
             saleId,
             customerId,
-            Package,
+            Package: {
+                ...Package,
+                remainingClasses: classNum
+            },
             paymentMode,
             dateTime
         });
 
         await newSale.save();
-
-        const classNum = packageData.classNum === "Unlimited" ? 9999 : parseInt(packageData.classNum);
         await Customer.findOneAndUpdate(
             { customerId },
             { $inc: { classBalance: classNum } }

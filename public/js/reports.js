@@ -1,9 +1,18 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    // Page loads with empty results area
     const user = await checkSession();
     if (!user) return;
     applyRoleRestrictions(user.role);
 });
+
+// Helper: get date range params from the inputs
+function getDateParams() {
+    const startDate = document.getElementById("startDate").value;
+    const endDate = document.getElementById("endDate").value;
+    if (startDate && endDate) {
+        return `?startDate=${startDate}&endDate=${endDate}`;
+    }
+    return "";
+}
 
 // PACKAGE SALES REPORT
 document.getElementById("packageSalesBtn").addEventListener("click", async () => {
@@ -20,9 +29,14 @@ document.getElementById("customerReportBtn").addEventListener("click", async () 
     await generateCustomerReport();
 });
 
-// TEACHER PAYMENT REPORT
-document.getElementById("paymentReportBtn").addEventListener("click", () => {
-    showMonthSelector();
+// REVENUE REPORT
+document.getElementById("revenueReportBtn").addEventListener("click", async () => {
+    await generateRevenueReport();
+});
+
+// AVERAGE ATTENDANCE REPORT
+document.getElementById("avgAttendanceBtn").addEventListener("click", async () => {
+    await generateAvgAttendanceReport();
 });
 
 // CLEAR
@@ -37,15 +51,6 @@ function clearReport() {
             Select a report to view
         </p>
     `;
-    document.getElementById("monthSelector").style.display = "none";
-}
-
-function showMonthSelector() {
-    document.getElementById("monthSelector").style.display = "block";
-    document.getElementById("reportResults").innerHTML = "";
-    document.getElementById("reportMonth").addEventListener("change", async () => {
-        await generatePaymentReport();
-    });
 }
 
 async function generatePackageSalesReport() {
@@ -53,7 +58,7 @@ async function generatePackageSalesReport() {
     results.innerHTML = "<p>Loading...</p>";
 
     try {
-        const res = await fetch("/api/reports/packageSales");
+        const res = await fetch(`/api/reports/packageSales${getDateParams()}`);
         const data = await res.json();
 
         if (data.length === 0) {
@@ -107,7 +112,7 @@ async function generateInstructorReport() {
     results.innerHTML = "<p>Loading...</p>";
 
     try {
-        const res = await fetch("/api/reports/instructorReport");
+        const res = await fetch(`/api/reports/instructorReport${getDateParams()}`);
         const data = await res.json();
 
         if (data.length === 0) {
@@ -196,7 +201,7 @@ async function generateCustomerReport() {
     results.innerHTML = "<p>Loading...</p>";
 
     try {
-        const res = await fetch("/api/reports/customerReport");
+        const res = await fetch(`/api/reports/customerReport${getDateParams()}`);
         const data = await res.json();
 
         if (data.length === 0) {
@@ -215,6 +220,7 @@ async function generateCustomerReport() {
                             <tr style="background-color: #f2f2f2;">
                                 <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Date of Purchase</th>
                                 <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Number of Passes</th>
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Remaining</th>
                                 <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Status</th>
                             </tr>
                         </thead>
@@ -224,19 +230,21 @@ async function generateCustomerReport() {
             if (customer.packages.length === 0) {
                 html += `
                     <tr>
-                        <td colspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center; color: gray;">
+                        <td colspan="4" style="padding: 8px; border: 1px solid #ddd; text-align: center; color: gray;">
                             No packages purchased
                         </td>
                     </tr>
                 `;
             } else {
                 customer.packages.forEach((pkg) => {
-                    const statusColor = pkg.status === "Active" ? "green" : 
+                    const statusColor = pkg.status === "Active" ? "green" :
                                        pkg.status === "Future" ? "blue" : "red";
+                    const remaining = pkg.remainingClasses !== undefined ? pkg.remainingClasses : "—";
                     html += `
                         <tr>
                             <td style="padding: 8px; border: 1px solid #ddd;">${pkg.dateOfPurchase}</td>
                             <td style="padding: 8px; border: 1px solid #ddd;">${pkg.numberOfPasses}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${remaining}</td>
                             <td style="padding: 8px; border: 1px solid #ddd; color: ${statusColor};">
                                 ${pkg.status}
                             </td>
@@ -248,6 +256,103 @@ async function generateCustomerReport() {
             html += `</tbody></table></div>`;
         });
 
+        results.innerHTML = html;
+
+    } catch (err) {
+        results.innerHTML = `<p style="color: red;">Error loading report: ${err.message}</p>`;
+    }
+}
+
+async function generateRevenueReport() {
+    const results = document.getElementById("reportResults");
+    results.innerHTML = "<p>Loading...</p>";
+
+    try {
+        const res = await fetch(`/api/reports/revenueReport${getDateParams()}`);
+        const data = await res.json();
+
+        const rangeLabel = data.startDate && data.endDate
+            ? `${data.startDate} to ${data.endDate}`
+            : "All time";
+
+        results.innerHTML = `
+            <h3>Revenue Report</h3>
+            <p style="color: gray; margin-bottom: 16px;">Period: ${rangeLabel}</p>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Metric</th>
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">Total Revenue</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">$${data.totalRevenue}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">Number of Sales</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${data.saleCount}</td>
+                    </tr>
+                </tbody>
+            </table>
+        `;
+
+    } catch (err) {
+        results.innerHTML = `<p style="color: red;">Error loading report: ${err.message}</p>`;
+    }
+}
+
+async function generateAvgAttendanceReport() {
+    const results = document.getElementById("reportResults");
+    results.innerHTML = "<p>Loading...</p>";
+
+    try {
+        const res = await fetch(`/api/reports/avgAttendanceReport${getDateParams()}`);
+        const data = await res.json();
+
+        const rangeLabel = data.startDate && data.endDate
+            ? `${data.startDate} to ${data.endDate}`
+            : "All time";
+
+        if (data.byClass.length === 0) {
+            results.innerHTML = `
+                <h3>Average Attendance Report</h3>
+                <p style="color: gray; margin-bottom: 16px;">Period: ${rangeLabel}</p>
+                <p style="text-align: center; color: gray;">No attendance records found for this period.</p>
+            `;
+            return;
+        }
+
+        let html = `
+            <h3>Average Attendance Report</h3>
+            <p style="color: gray; margin-bottom: 16px;">Period: ${rangeLabel}</p>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Class ID</th>
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Class Name</th>
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Sessions</th>
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Total Attendees</th>
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Avg per Session</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        data.byClass.forEach((cls) => {
+            html += `
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${cls.classId}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${cls.className}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${cls.totalSessions}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${cls.totalAttendees}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${cls.avgAttendance}</td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table>`;
         results.innerHTML = html;
 
     } catch (err) {

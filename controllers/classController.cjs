@@ -1,11 +1,25 @@
 const Class = require('../models/classModel.cjs');
 
-//Populate the dropdown with class names and ids
+// Helper: generate className from day/time/duration
+function generateClassName(day, time, duration) {
+    const dayNames = {
+        Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday",
+        Thu: "Thursday", Fri: "Friday", Sat: "Saturday", Sun: "Sunday"
+    };
+    const [hours, mins] = time.split(':').map(Number);
+    const totalEndMins = hours * 60 + mins + parseInt(duration);
+    const endHours = Math.floor(totalEndMins / 60) % 24;
+    const endMins = totalEndMins % 60;
+    const endTime = `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`;
+    return `${dayNames[day] || day} ${time} - ${endTime}`;
+}
+
+// Populate the dropdown with class names and ids (includes deactivated flag)
 exports.getClassIds = async (req, res) => {
     try {
         const classes = await Class.find(
             {},
-            { classId: 1, className: 1, _id: 0 }
+            { classId: 1, className: 1, deactivated: 1, _id: 0 }
         ).sort();
         res.json(classes);
     } catch (e) {
@@ -13,7 +27,7 @@ exports.getClassIds = async (req, res) => {
     }
 };
 
-//Get class details for the selected class id (populate pertinent fields)
+// Get class details for the selected class id
 exports.getClass = async (req, res) => {
     try {
         const classId = req.query.classId;
@@ -24,7 +38,7 @@ exports.getClass = async (req, res) => {
     }
 };
 
-//Get next available class id
+// Get next available class id
 exports.getNextId = async (req, res) => {
     try {
         const lastClass = await Class.find({})
@@ -46,18 +60,20 @@ exports.getNextId = async (req, res) => {
     }
 };
 
-//Update class
+// Update class
 exports.updateClass = async (req, res) => {
     try {
-        const { classId, className, instructorId, classType, description, daytime } = req.body;
+        const { classId, instructorId, classType, description, day, time, duration, deactivated } = req.body;
 
         if (!classId) {
             return res.status(400).json({ message: "Missing required fields" });
         }
 
+        const className = generateClassName(day, time, duration);
+
         const result = await Class.findOneAndUpdate(
             { classId },
-            { $set: { className, instructorId, classType, description, daytime } },
+            { $set: { className, instructorId, classType, description, day, time, duration, deactivated } },
             { new: true }
         );
 
@@ -71,7 +87,7 @@ exports.updateClass = async (req, res) => {
     }
 };
 
-//Delete class
+// Delete class
 exports.deleteClass = async (req, res) => {
     try {
         const { classId } = req.query;
@@ -85,79 +101,66 @@ exports.deleteClass = async (req, res) => {
     }
 };
 
-//Add class
+// Add class
 exports.addClass = async (req, res) => {
     try {
         const {
+            classId,
+            instructorId,
+            classType,
+            description,
+            day,
+            time,
+            duration
+        } = req.body;
+
+        if (!instructorId || !classType || !day || !time || !duration) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        // Convert new class time to minutes
+        const [newHours, newMins] = time.split(':').map(Number);
+        const newStart = newHours * 60 + newMins;
+        const newEnd = newStart + parseInt(duration);
+
+        // Find classes on the same day to check for conflicts
+        const existingClasses = await Class.find({ day: day });
+
+        for (const existing of existingClasses) {
+            const [exHours, exMins] = existing.time.split(':').map(Number);
+            const exStart = exHours * 60 + exMins;
+            const exEnd = exStart + existing.duration;
+
+            if (newStart < exEnd && newEnd > exStart) {
+                return res.status(409).json({
+                    message: "Scheduling conflict detected",
+                    conflict: {
+                        day: day,
+                        time: time,
+                        confWith: existing.className,
+                        existingTime: existing.time,
+                        existingDuration: existing.duration
+                    }
+                });
+            }
+        }
+
+        const className = generateClassName(day, time, duration);
+
+        const newClass = new Class({
             classId,
             className,
             instructorId,
             classType,
             description,
-            daytime
-        } = req.body;
-        //Check if required fields are empty
-        if (!className || !instructorId || !classType || !daytime || daytime.length === 0) {
-            return res.status(400).json({ message: "Missing required fields" });
-    }
-
-    const conflicts = [];
-
-    //Convert currently entered time to minutes
-    for (const slot of daytime) {
-        const [newHours, newMins] = slot.time.split(':').map(Number);
-        const newStart = newHours * 60 + newMins;
-        const newEnd = newStart + slot.duration;
-
-        //Find classes with sessions on the same day
-        const existingClasses = await Class.find({
-            'daytime.day': slot.day
+            day,
+            time,
+            duration: parseInt(duration),
+            deactivated: false
         });
 
-        //Convert existing class times to minutes
-        for (const existing of existingClasses) {
-            for (const existingSlot of existing.daytime) {
-                if (existingSlot.day === slot.day) {
-                    const [exHours, exMins] = existingSlot.time.split(':').map(Number);
-                    const exStart = exHours * 60 + exMins;
-                    const exEnd = exStart + existingSlot.duration;
-
-                    //Check for time overlap
-                    if (newStart < exEnd && newEnd > exStart) {
-                        conflicts.push({
-                            day: slot.day,
-                            time: slot.time,
-                            confWith: existing.className,
-                            existingTime: existingSlot.time,
-                            existingDuration: existingSlot.duration
-                        });
-                    }
-                }
-            }
-        }
-    }
-
-    //Notify user of any scheduling conflicts
-    if (conflicts.length > 0) {
-        return res.status(409).json({
-            message: "Scheduling conflict detected",
-            conflicts: conflicts
-        });
-    }
-
-    //If no conflicts, save the new class
-    const newClass = new Class({
-        classId,
-        className,
-        instructorId,
-        classType,
-        description,
-        daytime
-    });
-
-    //Save to database
-    await newClass.save();
-    res.status(201).json({ message: "Class scheduled succesfully", class: newClass });
+        await newClass.save();
+        res.status(201).json({ message: "Class scheduled successfully", class: newClass });
     } catch (e) {
         console.error("Error adding class:", e.message);
         res.status(500).json({ message: "Failed to schedule class", error: e.message });

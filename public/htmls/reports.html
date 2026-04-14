@@ -28,19 +28,21 @@
             <div class="card">
                 <h2>Studio Reports</h2>
 
+                <!-- Date Range Selector -->
+                <div id="dateRangeSection" style="display: flex; gap: 20px; align-items: flex-end; margin-bottom: 16px;">
+                    <label>Start Date
+                        <input type="date" id="startDate" class="form-input" style="width: 160px;"/>
+                    </label>
+                    <label>End Date
+                        <input type="date" id="endDate" class="form-input" style="width: 160px;"/>
+                    </label>
+                </div>
+
                 <!-- Report Results Area -->
                 <div id="reportResults" style="overflow-y: auto; max-height: 500px; min-height: 300px;">
-                    <!-- Report data populates here -->
                     <p id="reportPlaceholder" style="color: gray; text-align: center; margin-top: 100px;">
                         Select a report to view
                     </p>
-                </div>
-
-                <!-- Month/Year selector, hidden until Teacher Payment Report is selected -->
-                <div id="monthSelector" style="display: none;">
-                    <label>Select Month & Year
-                        <input type="month" id="reportMonth" class="form-input"/>
-                    </label>
                 </div>
 
                 <!-- Report buttons -->
@@ -48,6 +50,8 @@
                     <button type="button" class="btn" id="packageSalesBtn">Package Sales</button>
                     <button type="button" class="btn" id="instructorReportBtn">Instructor Report</button>
                     <button type="button" class="btn" id="customerReportBtn">Customer Report</button>
+                    <button type="button" class="btn" id="revenueReportBtn">Revenue Report</button>
+                    <button type="button" class="btn" id="avgAttendanceBtn">Avg Attendance</button>
                     <button type="button" class="btn btn--danger" id="clearReportBtn">Clear</button>
                     <a href="dashboard.html" class="btn">Exit</a>
                 </div>
