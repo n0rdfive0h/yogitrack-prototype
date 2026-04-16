@@ -39,6 +39,11 @@ document.getElementById("avgAttendanceBtn").addEventListener("click", async () =
     await generateAvgAttendanceReport();
 });
 
+// UNUSED PASSES REPORT
+document.getElementById("unusedPassesBtn").addEventListener("click", async () => {
+    await generateUnusedPassesReport();
+});
+
 // CLEAR
 document.getElementById("clearReportBtn").addEventListener("click", () => {
     clearReport();
@@ -66,8 +71,13 @@ async function generatePackageSalesReport() {
             return;
         }
 
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+        const rangeLabel = startDate && endDate ? `${startDate} to ${endDate}` : "All time";
+
         let html = `
             <h3>Package Sales Report</h3>
+            <p style="color: gray; margin-bottom: 16px;">Period: ${rangeLabel}</p>
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr style="background-color: #f2f2f2;">
@@ -120,7 +130,14 @@ async function generateInstructorReport() {
             return;
         }
 
-        let html = `<h3>Instructor Report</h3>`;
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+        const rangeLabel = startDate && endDate ? `${startDate} to ${endDate}` : "All time";
+
+        let html = `
+            <h3>Instructor Report</h3>
+            <p style="color: gray; margin-bottom: 16px;">Period: ${rangeLabel}</p>
+        `;
 
         data.forEach((instructor) => {
             let instructorTotalPay = 0;
@@ -209,7 +226,14 @@ async function generateCustomerReport() {
             return;
         }
 
-        let html = `<h3>Customer Report</h3>`;
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+        const rangeLabel = startDate && endDate ? `${startDate} to ${endDate}` : "All time";
+
+        let html = `
+            <h3>Customer Report</h3>
+            <p style="color: gray; margin-bottom: 16px;">Period: ${rangeLabel}</p>
+        `;
 
         data.forEach((customer) => {
             html += `
@@ -297,6 +321,70 @@ async function generateRevenueReport() {
                 </tbody>
             </table>
         `;
+
+    } catch (err) {
+        results.innerHTML = `<p style="color: red;">Error loading report: ${err.message}</p>`;
+    }
+}
+
+async function generateUnusedPassesReport() {
+    const results = document.getElementById("reportResults");
+    results.innerHTML = "<p>Loading...</p>";
+
+    try {
+        const res = await fetch(`/api/reports/unusedPassesReport${getDateParams()}`);
+        const data = await res.json();
+
+        const rangeLabel = data.startDate && data.endDate
+            ? `${data.startDate} to ${data.endDate}`
+            : "All time (expired as of today)";
+
+        if (data.report.length === 0) {
+            results.innerHTML = `
+                <h3>Unused Passes Report</h3>
+                <p style="color: gray; margin-bottom: 16px;">Period: ${rangeLabel}</p>
+                <p style="text-align: center; color: gray;">No unused expired passes found.</p>
+            `;
+            return;
+        }
+
+        let html = `
+            <h3>Unused Passes Report</h3>
+            <p style="color: gray; margin-bottom: 16px;">Period: ${rangeLabel}</p>
+        `;
+
+        data.report.forEach((customer) => {
+            const totalWasted = customer.unusedPasses.reduce((sum, p) => sum + p.remainingClasses, 0);
+            html += `
+                <div style="margin-bottom: 20px;">
+                    <h4>${customer.customerId}: ${customer.customerName} — ${totalWasted} wasted pass(es)</h4>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: #f2f2f2;">
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Sale ID</th>
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Package</th>
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Expired On</th>
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Unused Passes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            customer.unusedPasses.forEach((pass) => {
+                html += `
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${pass.saleId}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${pass.packageName}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${pass.endDate}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; color: red; font-weight: bold;">${pass.remainingClasses}</td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table></div>`;
+        });
+
+        results.innerHTML = html;
 
     } catch (err) {
         results.innerHTML = `<p style="color: red;">Error loading report: ${err.message}</p>`;

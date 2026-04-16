@@ -10,6 +10,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!user) return;
     currentUserRole = user.role;
     applyRoleRestrictions(user.role);
+    if (user.role === "instructor") {
+        ["addBtn", "editBtn", "saveBtn"].forEach((id) => {
+            const btn = document.getElementById(id);
+            if (btn) btn.style.display = "none";
+        });
+    }
     setFormForSearch();
     setFormForSaleSearch();
     initPackageDropdown();

@@ -158,6 +158,55 @@ exports.getRevenueReport = async (req, res) => {
     }
 };
 
+exports.getUnusedPassesReport = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+        const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
+
+        // Base filter: expired packages that still have remaining classes
+        const filter = { "Package.remainingClasses": { $gt: 0 } };
+
+        if (startDate && endDate) {
+            // Filter by when the package expired, within the given range
+            filter["Package.endDate"] = { $gte: startDate, $lte: endDate };
+        } else {
+            // No range: all packages expired as of today
+            filter["Package.endDate"] = { $lt: today };
+        }
+
+        const sales = await Sale.find(filter);
+
+        // Group by customer
+        const customerMap = {};
+        for (const sale of sales) {
+            const customerId = sale.customerId;
+            if (!customerMap[customerId]) {
+                const customer = await Customer.findOne({ customerId });
+                customerMap[customerId] = {
+                    customerId,
+                    customerName: customer ? `${customer.firstName} ${customer.lastName}` : "Unknown",
+                    unusedPasses: []
+                };
+            }
+            const packageData = await PackageModel.findOne({ packageId: sale.Package.packageId });
+            customerMap[customerId].unusedPasses.push({
+                saleId: sale.saleId,
+                packageName: packageData ? packageData.packageName : "Unknown",
+                endDate: sale.Package.endDate,
+                remainingClasses: sale.Package.remainingClasses
+            });
+        }
+
+        const report = Object.values(customerMap).sort((a, b) =>
+            a.customerId.localeCompare(b.customerId)
+        );
+
+        res.json({ report, startDate: startDate || null, endDate: endDate || null });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
 exports.getAvgAttendanceReport = async (req, res) => {
     try {
         const { startDate, endDate } = req.query;

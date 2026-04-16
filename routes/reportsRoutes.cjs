@@ -7,5 +7,6 @@ router.get("/instructorReport", reportsController.getInstructorReport);
 router.get("/customerReport", reportsController.getCustomerReport);
 router.get("/revenueReport", reportsController.getRevenueReport);
 router.get("/avgAttendanceReport", reportsController.getAvgAttendanceReport);
+router.get("/unusedPassesReport", reportsController.getUnusedPassesReport);
 
 module.exports = router;
