@@ -9,7 +9,7 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <a class="logo-wrap" href="dashboard.html">
-                <img src="../images/Logo.png" alt="YogaTrack Logo" class="logo">
+                <img src="../images/TranspLogo .png" alt="YogaTrack Logo" class="logo">
             </a>
             <nav class="nav">
                 <a href="instructor.html">Instructors</a>
@@ -25,6 +25,17 @@
         </aside>
 
         <main class="layout--center">
+            <div class="card-with-panel">
+              <div class="card-panel">
+                <button type="button" class="btn" id="packageSalesBtn">Package Sales</button>
+                <button type="button" class="btn" id="instructorReportBtn">Instructor Report</button>
+                <button type="button" class="btn" id="customerReportBtn">Customer Report</button>
+                <button type="button" class="btn" id="revenueReportBtn">Revenue Report</button>
+                <button type="button" class="btn" id="avgAttendanceBtn">Avg Attendance</button>
+                <button type="button" class="btn" id="unusedPassesBtn">Unused Passes</button>
+                <hr>
+                <a href="dashboard.html" class="btn">Exit</a>
+              </div>
             <div class="card">
                 <h2>Studio Reports</h2>
 
@@ -45,21 +56,11 @@
                     </p>
                 </div>
 
-                <!-- Report buttons -->
-                <div class="btn-row">
-                    <button type="button" class="btn" id="packageSalesBtn">Package Sales</button>
-                    <button type="button" class="btn" id="instructorReportBtn">Instructor Report</button>
-                    <button type="button" class="btn" id="customerReportBtn">Customer Report</button>
-                    <button type="button" class="btn" id="revenueReportBtn">Revenue Report</button>
-                    <button type="button" class="btn" id="avgAttendanceBtn">Avg Attendance</button>
-                    <button type="button" class="btn" id="unusedPassesBtn">Unused Passes</button>
-                </div>
-
                 <div class="btn-row">
                     <button type="button" class="btn btn--danger" id="clearReportBtn">Clear</button>
-                    <a href="dashboard.html" class="btn">Exit</a>
                 </div>
 
+            </div>
             </div>
         </main>
         <script src="../js/auth.js"></script>

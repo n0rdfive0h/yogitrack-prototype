@@ -80,12 +80,12 @@ async function generatePackageSalesReport() {
             <p style="color: gray; margin-bottom: 16px;">Period: ${rangeLabel}</p>
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
-                    <tr style="background-color: #f2f2f2;">
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Sale ID</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Customer</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Package</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Amount Paid</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Date</th>
+                    <tr style="background-color: #5f5e5e;">
+                        <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Sale ID</th>
+                        <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Customer</th>
+                        <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Package</th>
+                        <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Amount Paid</th>
+                        <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Date</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -94,11 +94,11 @@ async function generatePackageSalesReport() {
         data.forEach((sale) => {
             html += `
                 <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${sale.saleId}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${sale.customerName}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${sale.packageName}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">$${sale.amountPaid}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${sale.dateTime}</td>
+                    <td style="padding: 8px; border: 1px solid #4a4949;">${sale.saleId}</td>
+                    <td style="padding: 8px; border: 1px solid #4a4949;">${sale.customerName}</td>
+                    <td style="padding: 8px; border: 1px solid #4a4949;">${sale.packageName}</td>
+                    <td style="padding: 8px; border: 1px solid #4a4949;">$${sale.amountPaid}</td>
+                    <td style="padding: 8px; border: 1px solid #4a4949;">${sale.dateTime}</td>
                 </tr>
             `;
         });
@@ -147,11 +147,11 @@ async function generateInstructorReport() {
                     <h4>${instructor.instructorId}: ${instructor.instructorName}</h4>
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead>
-                            <tr style="background-color: #f2f2f2;">
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Class</th>
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Date</th>
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Attendees</th>
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Pay</th>
+                            <tr style="background-color: #5f5e5e;">
+                                <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Class</th>
+                                <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Date</th>
+                                <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Attendees</th>
+                                <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Pay</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -160,7 +160,7 @@ async function generateInstructorReport() {
             if (instructor.classes.length === 0) {
                 html += `
                     <tr>
-                        <td colspan="4" style="padding: 8px; border: 1px solid #ddd; text-align: center; color: gray;">
+                        <td colspan="4" style="padding: 8px; border: 1px solid #4a4949; text-align: center; color: gray;">
                             No classes assigned
                         </td>
                     </tr>
@@ -170,8 +170,8 @@ async function generateInstructorReport() {
                     if (cls.sessions.length === 0) {
                         html += `
                             <tr>
-                                <td style="padding: 8px; border: 1px solid #ddd;">${cls.className}</td>
-                                <td colspan="3" style="padding: 8px; border: 1px solid #ddd; color: gray;">
+                                <td style="padding: 8px; border: 1px solid #4a4949;">${cls.className}</td>
+                                <td colspan="3" style="padding: 8px; border: 1px solid #4a4949; color: gray;">
                                     No sessions recorded
                                 </td>
                             </tr>
@@ -182,10 +182,10 @@ async function generateInstructorReport() {
                             instructorTotalPay += pay;
                             html += `
                                 <tr>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${cls.className}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${session.dateTime}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${session.attendees}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">$${pay}</td>
+                                    <td style="padding: 8px; border: 1px solid #4a4949;">${cls.className}</td>
+                                    <td style="padding: 8px; border: 1px solid #4a4949;">${session.dateTime}</td>
+                                    <td style="padding: 8px; border: 1px solid #4a4949;">${session.attendees}</td>
+                                    <td style="padding: 8px; border: 1px solid #4a4949;">$${pay}</td>
                                 </tr>
                             `;
                         });
@@ -196,9 +196,9 @@ async function generateInstructorReport() {
             html += `
                         </tbody>
                         <tfoot>
-                            <tr style="background-color: #f2f2f2; font-weight: bold;">
-                                <td colspan="3" style="padding: 8px; border: 1px solid #ddd;">Total Pay</td>
-                                <td style="padding: 8px; border: 1px solid #ddd;">$${instructorTotalPay}</td>
+                            <tr style="background-color: #5f5e5e; font-weight: bold;">
+                                <td colspan="3" style="padding: 8px; border: 1px solid #4a4949;">Total Pay</td>
+                                <td style="padding: 8px; border: 1px solid #4a4949;">$${instructorTotalPay}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -241,11 +241,11 @@ async function generateCustomerReport() {
                     <h4>${customer.customerId}: ${customer.customerName} — Balance: ${customer.classBalance}</h4>
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead>
-                            <tr style="background-color: #f2f2f2;">
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Date of Purchase</th>
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Number of Passes</th>
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Remaining</th>
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Status</th>
+                            <tr style="background-color: #5f5e5e;">
+                                <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Date of Purchase</th>
+                                <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Number of Passes</th>
+                                <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Remaining</th>
+                                <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -254,7 +254,7 @@ async function generateCustomerReport() {
             if (customer.packages.length === 0) {
                 html += `
                     <tr>
-                        <td colspan="4" style="padding: 8px; border: 1px solid #ddd; text-align: center; color: gray;">
+                        <td colspan="4" style="padding: 8px; border: 1px solid #4a4949; text-align: center; color: gray;">
                             No packages purchased
                         </td>
                     </tr>
@@ -266,10 +266,10 @@ async function generateCustomerReport() {
                     const remaining = pkg.remainingClasses !== undefined ? pkg.remainingClasses : "—";
                     html += `
                         <tr>
-                            <td style="padding: 8px; border: 1px solid #ddd;">${pkg.dateOfPurchase}</td>
-                            <td style="padding: 8px; border: 1px solid #ddd;">${pkg.numberOfPasses}</td>
-                            <td style="padding: 8px; border: 1px solid #ddd;">${remaining}</td>
-                            <td style="padding: 8px; border: 1px solid #ddd; color: ${statusColor};">
+                            <td style="padding: 8px; border: 1px solid #4a4949;">${pkg.dateOfPurchase}</td>
+                            <td style="padding: 8px; border: 1px solid #4a4949;">${pkg.numberOfPasses}</td>
+                            <td style="padding: 8px; border: 1px solid #4a4949;">${remaining}</td>
+                            <td style="padding: 8px; border: 1px solid #4a4949; color: ${statusColor};">
                                 ${pkg.status}
                             </td>
                         </tr>
@@ -304,19 +304,19 @@ async function generateRevenueReport() {
             <p style="color: gray; margin-bottom: 16px;">Period: ${rangeLabel}</p>
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
-                    <tr style="background-color: #f2f2f2;">
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Metric</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Value</th>
+                    <tr style="background-color: #5f5e5e;">
+                        <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Metric</th>
+                        <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Value</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="padding: 8px; border: 1px solid #ddd;">Total Revenue</td>
-                        <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">$${data.totalRevenue}</td>
+                        <td style="padding: 8px; border: 1px solid #4a4949;">Total Revenue</td>
+                        <td style="padding: 8px; border: 1px solid #4a4949; font-weight: bold;">$${data.totalRevenue}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 8px; border: 1px solid #ddd;">Number of Sales</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${data.saleCount}</td>
+                        <td style="padding: 8px; border: 1px solid #4a4949;">Number of Sales</td>
+                        <td style="padding: 8px; border: 1px solid #4a4949;">${data.saleCount}</td>
                     </tr>
                 </tbody>
             </table>
@@ -360,11 +360,11 @@ async function generateUnusedPassesReport() {
                     <h4>${customer.customerId}: ${customer.customerName} — ${totalWasted} wasted pass(es)</h4>
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead>
-                            <tr style="background-color: #f2f2f2;">
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Sale ID</th>
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Package</th>
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Expired On</th>
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Unused Passes</th>
+                            <tr style="background-color: #5f5e5e;">
+                                <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Sale ID</th>
+                                <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Package</th>
+                                <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Expired On</th>
+                                <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Unused Passes</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -373,10 +373,10 @@ async function generateUnusedPassesReport() {
             customer.unusedPasses.forEach((pass) => {
                 html += `
                     <tr>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${pass.saleId}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${pass.packageName}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${pass.endDate}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd; color: red; font-weight: bold;">${pass.remainingClasses}</td>
+                        <td style="padding: 8px; border: 1px solid #4a4949;">${pass.saleId}</td>
+                        <td style="padding: 8px; border: 1px solid #4a4949;">${pass.packageName}</td>
+                        <td style="padding: 8px; border: 1px solid #4a4949;">${pass.endDate}</td>
+                        <td style="padding: 8px; border: 1px solid #4a4949; color: red; font-weight: bold;">${pass.remainingClasses}</td>
                     </tr>
                 `;
             });
@@ -417,12 +417,12 @@ async function generateAvgAttendanceReport() {
             <p style="color: gray; margin-bottom: 16px;">Period: ${rangeLabel}</p>
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
-                    <tr style="background-color: #f2f2f2;">
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Class ID</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Class Name</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Sessions</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Total Attendees</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Avg per Session</th>
+                    <tr style="background-color: #5f5e5e;">
+                        <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Class ID</th>
+                        <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Class Name</th>
+                        <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Sessions</th>
+                        <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Total Attendees</th>
+                        <th style="padding: 8px; border: 1px solid #4a4949; text-align: left;">Avg per Session</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -431,11 +431,11 @@ async function generateAvgAttendanceReport() {
         data.byClass.forEach((cls) => {
             html += `
                 <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${cls.classId}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${cls.className}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${cls.totalSessions}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${cls.totalAttendees}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${cls.avgAttendance}</td>
+                    <td style="padding: 8px; border: 1px solid #4a4949;">${cls.classId}</td>
+                    <td style="padding: 8px; border: 1px solid #4a4949;">${cls.className}</td>
+                    <td style="padding: 8px; border: 1px solid #4a4949;">${cls.totalSessions}</td>
+                    <td style="padding: 8px; border: 1px solid #4a4949;">${cls.totalAttendees}</td>
+                    <td style="padding: 8px; border: 1px solid #4a4949; font-weight: bold;">${cls.avgAttendance}</td>
                 </tr>
             `;
         });

@@ -1,7 +1,8 @@
 /* ---------- Base & helpers ---------- */
 *, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, sans-serif; background: #f5f8f8; color: #333; }
-h1, h2 { margin: 0 0 1rem; font-weight: 600; }
+body { margin: 0; font-family: system-ui, sans-serif; background: url('../images/YogaClass.jpg') no-repeat center center fixed; background-size: cover; color: #66d6a2; }
+body::before { content: ""; position: fixed; inset: 0; background: rgba(87, 87, 87, 0.4); pointer-events: none; z-index: 0; }
+h1, h2 { margin: 0 0 1rem; font-weight: 600; text-align: center; }
 a { text-decoration: none; }
 
 .text--center { text-align: center; }
@@ -11,21 +12,69 @@ a { text-decoration: none; }
   display: flex; justify-content: center; align-items: center; min-height: 100vh;
   padding: 2rem;
 }
-.layout--sidebar { 
-  display: flex; 
-  min-height: 100vh; 
+.layout--sidebar {
+  display: flex;
+  min-height: 100vh;
+}
+main.layout--center {
+  flex: 1;
+  align-items: flex-start;
+  padding: 0;
+  overflow-y: auto;
 }
 
 /* ---------- Card ---------- */
 .card {
-  background: #fff; padding: 2rem; border-radius: 0.75rem;
+  background: #5f5e5e; padding: 2rem; border-radius: 0.75rem; opacity: 0.9; 
   box-shadow: 0 4px 14px rgba(0,0,0,.06); width: 100%; max-width: 480px;
 }
 .card--wide { max-width: 560px; }
+main.layout--center .card {
+  min-height: 100vh;
+  overflow-y: auto;
+  border-radius: 0;
+  max-width: 520px;
+  width: 100%;
+}
+
+/* ---------- Card with attached panel ---------- */
+.card-with-panel {
+  display: flex;
+  min-height: 100vh;
+}
+.card-panel {
+  width: 130px;
+  background: #4a4949;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem 0.75rem;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+.card-panel .btn {
+  width: 100%;
+  text-align: center;
+}
+.card-panel hr {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  margin: 0.25rem 0;
+}
+.card-with-panel .card {
+  flex: 1;
+  border-radius: 0;
+  min-height: 100vh;
+  max-width: none;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
 /* ---------- Sidebar ---------- */
 .sidebar {
-  width: 220px; background: #bee6e0; color: #05713d;
+  width: 220px; background: #5f5e5e; color: #66d6a2;
   display: flex; flex-direction: column; gap: 2rem; padding: 2rem 1rem;
 }
 .logo-wrap { display: flex; align-items: center; gap: .5rem; color: inherit; font-weight: 600; }
@@ -37,7 +86,7 @@ a { text-decoration: none; }
 /* ---------- Form elements ---------- */
 input, textarea {
   width: 100%; padding: .6rem .75rem; border: 1px solid #ccc;
-  border-radius: .5rem; font-size: 1rem; margin-top: .25rem;
+  border-radius: .5rem; font-size: 1rem; margin-top: .25rem; background: #f0f0f0;
 }
 textarea { resize: vertical; }
 
@@ -124,9 +173,11 @@ legend { padding: 0 .25rem; }
 
 /* Make sure all layout content appears above the overlay */
 .layout--sidebar,
+.layout--center,
 .main-fill,
 .sidebar,
-.welcome-box {
+.welcome-box,
+.card {
   position: relative;
   z-index: 1;
 }

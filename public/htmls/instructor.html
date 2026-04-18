@@ -9,7 +9,7 @@
   <!-- Re-use the same sidebar -->
   <aside class="sidebar">
     <a class="logo-wrap" href="dashboard.html">
-      <img src="../images/Logo.png" alt="YogaTrack Logo" class="logo">
+      <img src="../images/TranspLogo .png" alt="YogaTrack Logo" class="logo">
     </a>
     <nav class="nav">
          <a href="instructor.html">Instructors</a>
@@ -26,6 +26,14 @@
 
   <!-- Instructor form -->
   <main class="layout--center">
+    <div class="card-with-panel">
+      <div class="card-panel">
+        <button type="button" class="btn" id="searchBtn">Search</button>
+        <button type="button" class="btn btn--primary" id="addBtn">Add New</button>
+        <button type="button" class="btn btn--primary" id="editBtn">Edit</button>
+        <hr>
+        <a href="dashboard.html" class="btn">Exit</a>
+      </div>
     <form class="card" id="instructorForm" >
       <h2>Instructor Details</h2>
 
@@ -74,15 +82,12 @@
 
       <!-- Action buttons -->
       <div class="btn-row">
-        <button type="button" class="btn" id="searchBtn">Search</button>
-        <button type="button" class="btn btn--primary" id="addBtn">Add&nbsp;New</button>
-        <button type="button" class="btn btn--primary" id="editBtn">Edit</button>
         <button type="button" class="btn" id="saveBtn">Save</button>
         <button type="button" class="btn btn--danger" id="deleteBtn">Delete</button>
         <button type="button" class="btn" onclick="clearInstructorForm()">Clear</button>
-        <a href="dashboard.html" class="btn">Exit</a>
       </div>
     </form>
+    </div>
   </main>
 <script src="../js/auth.js"></script>
 <script src="../js/instructor.js"></script>
