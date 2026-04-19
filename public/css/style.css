@@ -103,8 +103,8 @@ legend { padding: 0 .25rem; }
   background: #e0e0e0; color: #333; border: none; cursor: pointer; font-size: .95rem;
 }
 .btn:hover { background: #d5d5d5; }
-.btn--primary { background: #008080; color: #fff; }
-.btn--primary:hover { background: #006c6c; }
+.btn--primary { background: #d5d5d5; }
+.btn--primary:hover { background: #d5d5d5; }
 .btn--danger { background: #c0392b; color: #fff; }
 .btn--danger:hover { background: #992a20; }
 
