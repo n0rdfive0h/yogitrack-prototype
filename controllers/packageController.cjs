@@ -50,7 +50,7 @@ exports.getNextPackageId = async (req, res) => {
 
 exports.updatePackage = async (req, res) => {
     try {
-        const { packageId, packageName, packageCategory, classNum, classType, startDate, endDate, price, deactivated } = req.body;
+        const { packageId, packageName, packageCategory, classNum, classType, durationMonths, price, deactivated } = req.body;
 
         if (!packageId) {
             return res.status(400).json({ message: "Missing required fields" });
@@ -58,7 +58,7 @@ exports.updatePackage = async (req, res) => {
 
         const result = await PackageModel.findOneAndUpdate(
             { packageId },
-            { $set: { packageName, packageCategory, classNum, classType, startDate, endDate, price, deactivated } },
+            { $set: { packageName, packageCategory, classNum, classType, durationMonths, price, deactivated } },
             { new: true }
         );
 
@@ -93,11 +93,10 @@ exports.addPackage = async (req, res) => {
             packageCategory,
             classNum,
             classType,
-            startDate,
-            endDate,
+            durationMonths,
             price
         } = req.body;
-        if (!packageName || !packageCategory || !classNum || !classType || !startDate || !endDate || !price) {
+        if (!packageName || !packageCategory || !classNum || !classType || !durationMonths || !price) {
             return res.status(400).json({ error: "Missing required fields" });
         }
         const newPackage = new PackageModel({
@@ -106,8 +105,7 @@ exports.addPackage = async (req, res) => {
             packageCategory,
             classNum,
             classType,
-            startDate,
-            endDate,
+            durationMonths,
             price
         });
         await newPackage.save();

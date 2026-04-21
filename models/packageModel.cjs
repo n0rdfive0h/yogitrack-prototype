@@ -7,8 +7,7 @@ const packageModel = new mongoose.Schema({
     packageCategory: String,
     classNum: String,
     classType: String,
-    startDate: String,
-    endDate: String,
+    durationMonths: Number,
     price: Number,
     deactivated: { type: Boolean, default: false }
 }, {collection: "package"});

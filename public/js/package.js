@@ -86,18 +86,18 @@ async function savePackage() {
         // Validate form before proceeding
         const form = document.getElementById("packageForm");
         
-        if (!form.packageName.value.trim() || !form.packageCategory.value || 
+        if (!form.packageName.value.trim() || !form.packageCategory.value ||
             !form.classNum.value || !form.classType.value.trim() ||
-            !form.startDate.value || !form.endDate.value || !form.price.value) {
+            !form.durationMonths.value || !form.price.value) {
             throw new Error("All fields are required");
         }
-        
+
         // Validate price is a positive number
         const price = parseFloat(form.price.value);
         if (isNaN(price) || price <= 0) {
             throw new Error("Price must be a positive number");
         }
-        
+
         // Handle classNum - can be "Unlimited" or a positive number
         const classNum = form.classNum.value;
         if (classNum !== "Unlimited") {
@@ -106,12 +106,10 @@ async function savePackage() {
                 throw new Error("Class number must be a positive number");
             }
         }
-        
-        // Validate date range
-        const startDate = new Date(form.startDate.value);
-        const endDate = new Date(form.endDate.value);
-        if (endDate <= startDate) {
-            throw new Error("End date must be after start date");
+
+        const durationMonths = parseInt(form.durationMonths.value);
+        if (isNaN(durationMonths) || durationMonths < 1) {
+            throw new Error("Duration must be at least 1 month");
         }
 
         // Get next package ID with error handling
@@ -127,8 +125,7 @@ async function savePackage() {
             packageCategory: form.packageCategory.value,
             classNum: classNum,
             classType: form.classType.value,
-            startDate: form.startDate.value,
-            endDate: form.endDate.value,
+            durationMonths: durationMonths,
             price: price
         };
 
@@ -183,8 +180,7 @@ async function addPackageDropdownListener() {
             form.packageCategory.value = data.packageCategory || "";
             form.classNum.value = data.classNum || "";
             form.classType.value = data.classType || "";
-            form.startDate.value = data.startDate || "";
-            form.endDate.value = data.endDate || "";
+            form.durationMonths.value = data.durationMonths || "";
             form.price.value = data.price || "";
             document.getElementById("deactivated").checked = data.deactivated || false;
         
@@ -259,7 +255,7 @@ async function updatePackage() {
 
         if (!form.packageName.value.trim() || !form.packageCategory.value ||
             !form.classNum.value || !form.classType.value ||
-            !form.startDate.value || !form.endDate.value || !form.price.value) {
+            !form.durationMonths.value || !form.price.value) {
             alert("❌ Please fill out all required fields.");
             return;
         }
@@ -270,14 +266,19 @@ async function updatePackage() {
             return;
         }
 
+        const durationMonths = parseInt(form.durationMonths.value);
+        if (isNaN(durationMonths) || durationMonths < 1) {
+            alert("❌ Duration must be at least 1 month.");
+            return;
+        }
+
         const packageData = {
             packageId,
             packageName: form.packageName.value.trim(),
             packageCategory: form.packageCategory.value,
             classNum: form.classNum.value,
             classType: form.classType.value,
-            startDate: form.startDate.value,
-            endDate: form.endDate.value,
+            durationMonths: durationMonths,
             price,
             deactivated: document.getElementById("deactivated").checked
         };
@@ -506,8 +507,18 @@ async function addSalePackageDropdownListener() {
             const data = await res.json();
 
             // Auto populate fields from package
-            form.startDate.value = data.startDate || "";
-            form.endDate.value = data.endDate || "";
+            const today = new Date();
+            const startDateStr = today.toISOString().split("T")[0];
+            form.startDate.value = startDateStr;
+
+            if (data.durationMonths) {
+                const end = new Date(today);
+                end.setMonth(end.getMonth() + data.durationMonths);
+                form.endDate.value = end.toISOString().split("T")[0];
+            } else {
+                form.endDate.value = "";
+            }
+
             form.amountPaid.value = data.price || "";
 
         } catch (err) {

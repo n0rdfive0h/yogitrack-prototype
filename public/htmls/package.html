@@ -86,14 +86,11 @@
                     </label>
                     
 
-                    <!-- Start/End/Price Entries -->
+                    <!-- Duration/Price Entries -->
                     <div id="packageEntries">
                         <div class="entries" style="display: flex; gap: 10px; align-items: center;">
-                            <label>Start Date
-                                <input type="date" name="startDate" class="form-input" style="width: 140px"/>
-                            </label>
-                            <label>End Date
-                                <input type="date" name="endDate" class="form-input" style="width: 140px"/>
+                            <label>Duration (Months)
+                                <input type="number" name="durationMonths" class="form-input" style="width: 100px" min="1" step="1"/>
                             </label>
                             <label>Price $
                                 <input type="number" name="price" class="form-input" style="width: 80px" min="0"/>
