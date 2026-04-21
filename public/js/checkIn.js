@@ -95,9 +95,6 @@ document.getElementById("submitAttendanceBtn").addEventListener("click", async (
       throw new Error(result.message || "Failed to save attendance");
     }
 
-    if (result.scheduleWarning) {
-      alert(`⚠️ ${result.scheduleWarning}`);
-    }
     if (result.balanceWarnings && result.balanceWarnings.length > 0) {
       alert(`⚠️ The following customers had insufficient balance:\n${result.balanceWarnings.join("\n")}`);
     }

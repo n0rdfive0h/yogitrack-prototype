@@ -116,6 +116,12 @@ exports.addAttendance = async (req, res) => {
         const scheduleMatch = classData.day === submittedDay &&
             classData.time.substring(0, 5) === submittedTime;
 
+        if (!scheduleMatch) {
+            return res.status(400).json({
+                message: `This class is not scheduled for ${submittedDay} at ${submittedTime}. Scheduled: ${classData.day} at ${classData.time.substring(0, 5)}.`
+            });
+        }
+
         const newAttendance = new Attendance({
             attendanceId,
             instructorId,
@@ -167,9 +173,7 @@ exports.addAttendance = async (req, res) => {
             message: "Attendance saved successfully",
             attendanceId,
             totalPresent: customers.length,
-            balanceWarnings: balanceWarnings,
-            scheduleWarning: !scheduleMatch ?
-                `Warning: This class is not scheduled for ${submittedDay} at ${submittedTime}` : null
+            balanceWarnings: balanceWarnings
         });
     } catch (e) {
         console.error("Error saving attendance:", e.message);
